@@ -24,6 +24,10 @@
     --amber-dim: rgba(240,160,32,0.12);
     --red: #e24b4a;
     --red-dim: rgba(226,75,74,0.12);
+    --msg-bot-bg: #1a2a4a;
+    --msg-bot-border: rgba(74,143,232,0.2);
+    --msg-admin-bg: #2a1a3a;
+    --msg-admin-border: rgba(167,139,250,0.25);
     --radius: 10px;
     --radius-sm: 6px;
     --font: 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
@@ -39,6 +43,10 @@
     --text: #1a1a1a;
     --text2: #555555;
     --text3: #888888;
+    --msg-bot-bg: #e3f2fd;
+    --msg-bot-border: rgba(74,143,232,0.3);
+    --msg-admin-bg: #f3e5f5;
+    --msg-admin-border: rgba(167,139,250,0.3);
   }
 
   body {
@@ -114,7 +122,10 @@
     flex-direction: column;
     gap: 4px;
     overflow-y: auto;
+    max-height: calc(100vh - 56px);
   }
+  .sidebar::-webkit-scrollbar { width: 6px; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
   .sidebar-section {
     font-size: 10px;
     text-transform: uppercase;
@@ -257,14 +268,14 @@
     position: relative;
   }
   .msg-row.out .msg-bubble {
-    background: #1a2a4a;
-    border: 1px solid rgba(74,143,232,0.2);
+    background: var(--msg-bot-bg);
+    border: 1px solid var(--msg-bot-border);
     border-bottom-right-radius: 3px;
     color: var(--text);
   }
   .msg-row.out .msg-bubble.admin-msg {
-    background: #2a1a3a;
-    border-color: rgba(167,139,250,0.25);
+    background: var(--msg-admin-bg);
+    border-color: var(--msg-admin-border);
   }
   .msg-row.in .msg-bubble {
     background: var(--bg3);
@@ -641,17 +652,27 @@ async function selectConv(waId) {
   renderSidebar();
 
   const conv = STATE.conversations.find(c => c.waId === waId);
-  if (!conv) return;
+  if (!conv) {
+    console.error('Conversación no encontrada:', waId);
+    return;
+  }
 
-  $('chatHeader').style.display = 'flex';
-  $('inputArea').style.display = 'flex';
-  $('emptyChat').style.display = 'none';
+  // Mostrar header e input
+  const chatHeader = $('chatHeader');
+  const inputArea = $('inputArea');
+  if (chatHeader) chatHeader.style.display = 'flex';
+  if (inputArea) inputArea.style.display = 'flex';
 
+  // Actualizar header
   const phone = formatPhone(waId);
   const initials = phone.replace(/\D/g, '').slice(-4, -2) || '??';
-  $('headerAvatar').textContent = initials;
-  $('headerTitle').textContent = phone;
-  $('headerSubtitle').textContent = `Expediente: ${conv.nexp || '—'} · Stage: ${conv.stage || '—'} · Estado: ${conv.status || '—'}`;
+  const headerAvatar = $('headerAvatar');
+  const headerTitle = $('headerTitle');
+  const headerSubtitle = $('headerSubtitle');
+
+  if (headerAvatar) headerAvatar.textContent = initials;
+  if (headerTitle) headerTitle.textContent = phone;
+  if (headerSubtitle) headerSubtitle.textContent = `Expediente: ${conv.nexp || '—'} · Stage: ${conv.stage || '—'} · Estado: ${conv.status || '—'}`;
 
   // Sincronizar botPaused desde el servidor
   const isPaused = conv.botPaused === true || STATE.botPaused[waId] || false;
