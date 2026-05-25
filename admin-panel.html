@@ -175,6 +175,7 @@
     display: grid;
     grid-template-rows: auto 1fr auto;
     overflow: hidden;
+    height: calc(100vh - 56px);
   }
 
   /* ── Chat header ── */
@@ -185,6 +186,7 @@
     display: flex;
     align-items: center;
     gap: 14px;
+    flex-shrink: 0;
   }
   .chat-info { flex: 1; }
   .chat-title { font-size: 15px; font-weight: 600; }
@@ -592,11 +594,17 @@ function renderSidebar() {
   // Filtrar por búsqueda
   if (STATE.searchQuery.trim()) {
     const q = STATE.searchQuery.toLowerCase();
+    const qDigitsOnly = q.replace(/\D/g, ''); // Solo dígitos para comparar teléfonos
     sortedConvs = sortedConvs.filter(conv => {
       const phone = formatPhone(conv.waId);
+      const phoneDigitsOnly = conv.waId.replace(/\D/g, '');
       const nexp = (conv.nexp || '').toLowerCase();
       const stage = (conv.stage || '').toLowerCase();
-      return phone.includes(q) || nexp.includes(q) || stage.includes(q);
+      // Buscar en: teléfono formateado, teléfono sin formato, expediente y stage
+      return phone.includes(q) ||
+             phoneDigitsOnly.includes(qDigitsOnly) ||
+             nexp.includes(q) ||
+             stage.includes(q);
     });
   }
 
