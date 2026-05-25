@@ -858,10 +858,11 @@ function startPolling() {
   STATE.pollFailures = 0;
   STATE.pollInterval = 5000;
 
-  STATE.pollTimer = setInterval(async () => {
+  const pollOnce = async () => {
     if (!STATE.connected) return;
     try {
       await loadConversations();
+      // SIEMPRE cargar mensajes si hay conversación activa, incluso si el bot está pausado
       if (STATE.activeConvId) {
         await loadMessages(STATE.activeConvId);
       }
@@ -877,7 +878,12 @@ function startPolling() {
         STATE.pollInterval = Math.min(STATE.pollInterval * 1.5, 30000);
       }
     }
-  }, 5000);
+  };
+
+  // Ejecutar inmediatamente la primera vez
+  pollOnce();
+
+  STATE.pollTimer = setInterval(pollOnce, 5000);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
