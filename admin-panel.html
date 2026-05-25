@@ -30,6 +30,17 @@
     --font-mono: 'SF Mono', 'Fira Code', monospace;
   }
 
+  :root.light-mode {
+    --bg: #ffffff;
+    --bg2: #f5f5f5;
+    --bg3: #efefef;
+    --border: rgba(0,0,0,0.08);
+    --border2: rgba(0,0,0,0.14);
+    --text: #1a1a1a;
+    --text2: #555555;
+    --text3: #888888;
+  }
+
   body {
     font-family: var(--font);
     background: var(--bg);
@@ -391,9 +402,12 @@
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#25d366" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
     </svg>
-    Bot WhatsApp — Jumar
+    Manolita
   </a>
   <div class="topbar-sep"></div>
+  <button onclick="toggleDarkMode()" title="Alternar modo claro/oscuro" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:16px;padding:0;display:flex;align-items:center;">
+    <span id="themeIcon">🌙</span>
+  </button>
   <div class="topbar-url">
     <span class="dot-status" id="connDot"></span>
     <input type="text" id="serverUrl" placeholder="http://localhost:3000" value="http://localhost:3000" />
@@ -403,8 +417,19 @@
 
 <!-- ── Sidebar ── -->
 <nav class="sidebar" id="sidebar">
-  <div class="sidebar-section">Conversaciones</div>
-  <div id="convList" style="display:flex;flex-direction:column;gap:2px;">
+  <div style="padding:0 16px;display:flex;flex-direction:column;gap:8px;padding-top:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div class="sidebar-section" style="margin:0;flex:1;">Conversaciones</div>
+      <button onclick="loadConversations()" title="Actualizar" style="background:none;border:none;cursor:pointer;color:var(--text2);padding:4px;display:flex;align-items:center;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 2.2"/></svg>
+      </button>
+    </div>
+    <input type="text" id="convSearch" placeholder="Buscar…"
+      style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:8px 12px;color:var(--text);font-size:12px;outline:none;font-family:var(--font);"
+      oninput="filterConversations(this.value)" />
+    <div style="font-size:11px;color:var(--text3);text-align:center;" id="convCount"></div>
+  </div>
+  <div id="convList" style="display:flex;flex-direction:column;gap:2px;margin-top:8px;">
     <div style="padding:16px;font-size:13px;color:var(--text3);text-align:center;">
       Conecta al servidor para ver las conversaciones
     </div>
@@ -461,9 +486,29 @@ const STATE = {
   botPaused: {},
   pollTimer: null,
   connected: false,
+  searchQuery: '',
+  pollFailures: 0,
+  pollInterval: 5000,
 };
 
 function $(id) { return document.getElementById(id); }
+
+function toggleDarkMode() {
+  const root = document.documentElement;
+  const isLightMode = root.classList.contains('light-mode');
+  root.classList.toggle('light-mode');
+  $('themeIcon').textContent = isLightMode ? '🌙' : '☀️';
+  localStorage.setItem('theme', isLightMode ? 'dark' : 'light');
+}
+
+// Restaurar tema al cargar
+document.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('theme');
+  if (saved === 'light') {
+    document.documentElement.classList.add('light-mode');
+    $('themeIcon').textContent = '☀️';
+  }
+});
 
 function toast(msg, type = 'info') {
   const el = document.createElement('div');
@@ -518,21 +563,40 @@ function renderSidebar() {
   const list = $('convList');
   if (!STATE.conversations.length) {
     list.innerHTML = `<div style="padding:16px;font-size:13px;color:var(--text3);text-align:center;">Sin conversaciones activas</div>`;
+    $('convCount').textContent = '0 conversaciones';
     return;
   }
 
-  const sortedConvs = [...STATE.conversations].sort((a, b) => {
+  // Sincronizar botPaused desde el servidor
+  STATE.conversations.forEach(c => {
+    if (c.botPaused !== undefined) STATE.botPaused[c.waId] = c.botPaused;
+  });
+
+  let sortedConvs = [...STATE.conversations].sort((a, b) => {
     const ta = a.lastMessageAt || 0;
     const tb = b.lastMessageAt || 0;
     return tb - ta;
   });
+
+  // Filtrar por búsqueda
+  if (STATE.searchQuery.trim()) {
+    const q = STATE.searchQuery.toLowerCase();
+    sortedConvs = sortedConvs.filter(conv => {
+      const phone = formatPhone(conv.waId);
+      const nexp = (conv.nexp || '').toLowerCase();
+      const stage = (conv.stage || '').toLowerCase();
+      return phone.includes(q) || nexp.includes(q) || stage.includes(q);
+    });
+  }
+
+  $('convCount').textContent = `${sortedConvs.length}/${STATE.conversations.length} conversaciones`;
 
   list.innerHTML = sortedConvs.map(conv => {
     const id = conv.waId;
     const nexp = conv.nexp || '—';
     const phone = formatPhone(id);
     const initials = phone.replace(/\D/g, '').slice(-4, -2) || '??';
-    const isPaused = STATE.botPaused[id];
+    const isPaused = conv.botPaused === true || STATE.botPaused[id];
     const stage = conv.stage || 'consent';
     const status = conv.status || 'pending';
     const badge = getBadge(stage, status, isPaused);
@@ -556,6 +620,11 @@ function getBadge(stage, status, isPaused) {
   if (stage === 'agendando') return { cls: 'badge-pending', label: 'Agendando' };
   if (stage === 'valoracion') return { cls: 'badge-pending', label: 'Valoración' };
   return { cls: 'badge-bot', label: 'Activo' };
+}
+
+function filterConversations(query) {
+  STATE.searchQuery = query;
+  renderSidebar();
 }
 
 function formatPhone(waId) {
@@ -584,7 +653,9 @@ async function selectConv(waId) {
   $('headerTitle').textContent = phone;
   $('headerSubtitle').textContent = `Expediente: ${conv.nexp || '—'} · Stage: ${conv.stage || '—'} · Estado: ${conv.status || '—'}`;
 
-  const isPaused = STATE.botPaused[waId] || false;
+  // Sincronizar botPaused desde el servidor
+  const isPaused = conv.botPaused === true || STATE.botPaused[waId] || false;
+  STATE.botPaused[waId] = isPaused;
   updateToggleUI(isPaused);
 
   await loadMessages(waId);
@@ -606,14 +677,9 @@ function renderMessages(messages, waId) {
   const isEmpty = $('emptyChat');
 
   if (!messages.length) {
-    area.innerHTML = '';
-    area.appendChild(isEmpty);
-    isEmpty.style.display = 'flex';
-    isEmpty.querySelector('div:last-child').textContent = 'Sin mensajes en esta conversación';
+    area.innerHTML = '<div class="empty-chat" id="emptyChat"><div class="empty-icon">💬</div><div>Sin mensajes en esta conversación</div></div>';
     return;
   }
-
-  isEmpty.style.display = 'none';
 
   let html = '';
   let lastDate = '';
@@ -760,11 +826,27 @@ function autoResize(el) {
 
 function startPolling() {
   if (STATE.pollTimer) clearInterval(STATE.pollTimer);
+  STATE.pollFailures = 0;
+  STATE.pollInterval = 5000;
+
   STATE.pollTimer = setInterval(async () => {
     if (!STATE.connected) return;
-    await loadConversations();
-    if (STATE.activeConvId) {
-      await loadMessages(STATE.activeConvId);
+    try {
+      await loadConversations();
+      if (STATE.activeConvId) {
+        await loadMessages(STATE.activeConvId);
+      }
+      // Reset on success
+      if (STATE.pollFailures > 0) {
+        STATE.pollFailures = 0;
+        STATE.pollInterval = 5000;
+      }
+    } catch (e) {
+      STATE.pollFailures++;
+      // Backoff: double interval up to 30s on repeated failures
+      if (STATE.pollFailures > 2) {
+        STATE.pollInterval = Math.min(STATE.pollInterval * 1.5, 30000);
+      }
     }
   }, 5000);
 }
