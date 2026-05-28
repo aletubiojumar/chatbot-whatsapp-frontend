@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acceso — Panel WhatsApp Jumar</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f1117;
+    --bg2: #181c27;
+    --bg3: #1e2335;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #e8eaf0;
+    --text2: #8b90a0;
+    --text3: #555b6e;
+    --green: #25d366;
+    --blue: #4a8fe8;
+    --red: #e24b4a;
+    --red-dim: rgba(226,75,74,0.12);
+    --amber: #f0a020;
+    --amber-dim: rgba(240,160,32,0.12);
+    --radius: 10px;
+    --font: 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+  }
+
+  :root.light-mode {
+    --bg: #ffffff;
+    --bg2: #f5f5f5;
+    --bg3: #efefef;
+    --border: rgba(0,0,0,0.08);
+    --border2: rgba(0,0,0,0.14);
+    --text: #1a1a1a;
+    --text2: #555555;
+    --text3: #888888;
+  }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .theme-toggle {
+    position: fixed; top: 20px; right: 20px;
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 50%;
+    width: 38px; height: 38px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 16px;
+    color: var(--text2);
+    transition: transform 0.15s, background 0.15s;
+  }
+  .theme-toggle:hover { transform: scale(1.05); background: var(--bg3); }
+
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 16px;
+    padding: 40px;
+    width: 100%;
+    max-width: 380px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .logo svg { flex-shrink: 0; }
+
+  .subtitle {
+    font-size: 13px;
+    color: var(--text2);
+    margin-top: 2px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  input {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 14px;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+
+  input:focus { border-color: var(--blue); }
+
+  .btn {
+    background: var(--blue);
+    border: none;
+    border-radius: var(--radius);
+    color: #fff;
+    cursor: pointer;
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 11px 20px;
+    transition: opacity 0.15s;
+    width: 100%;
+  }
+
+  .btn:hover { opacity: 0.85; }
+  .btn:disabled { opacity: 0.5; cursor: default; }
+
+  .btn-link {
+    background: none; border: none; cursor: pointer;
+    color: var(--text2); font-size: 12px; padding: 0;
+    text-align: center; text-decoration: underline;
+    font-family: var(--font);
+  }
+  .btn-link:hover { color: var(--blue); }
+
+  .error {
+    background: var(--red-dim);
+    border: 1px solid rgba(226,75,74,0.3);
+    border-radius: var(--radius);
+    color: var(--red);
+    font-size: 13px;
+    padding: 10px 14px;
+    display: none;
+  }
+  .error.visible { display: block; }
+
+  .info {
+    background: rgba(74,143,232,0.12);
+    border: 1px solid rgba(74,143,232,0.3);
+    border-radius: var(--radius);
+    color: var(--blue);
+    font-size: 13px;
+    padding: 10px 14px;
+    display: none;
+  }
+  .info.visible { display: block; }
+
+  /* Modal */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6); z-index: 100;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--bg2); border: 1px solid var(--border2);
+    border-radius: 14px; padding: 24px; width: 360px;
+    display: flex; flex-direction: column; gap: 18px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .modal h3 { font-size: 15px; font-weight: 600; color: var(--text); margin: 0; }
+  .modal p { font-size: 13px; color: var(--text2); line-height: 1.5; }
+  .modal-actions { display: flex; gap: 10px; }
+  .modal-actions .btn { flex: 1; padding: 10px 16px; font-size: 13px; }
+  .btn-secondary {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    color: var(--text);
+  }
+  .btn-secondary:hover { background: var(--border); opacity: 1; }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" onclick="toggleTheme()" title="Alternar modo claro/oscuro">
+  <span id="themeIcon">🌙</span>
+</button>
+
+<div class="card">
+  <div>
+    <div class="logo">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#25d366" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      Manolita
+    </div>
+    <div class="subtitle">Panel de administración</div>
+  </div>
+
+  <form id="loginForm" onsubmit="handleLogin(event)" style="display:flex;flex-direction:column;gap:16px;">
+    <div class="field">
+      <label for="username">Usuario</label>
+      <input type="text" id="username" autocomplete="username" required autofocus />
+    </div>
+    <div class="field">
+      <label for="password">Contraseña</label>
+      <input type="password" id="password" autocomplete="current-password" required />
+    </div>
+    <div class="error" id="errorMsg"></div>
+    <div class="info" id="infoMsg"></div>
+    <button class="btn" type="submit" id="submitBtn">Entrar</button>
+    <button class="btn-link" type="button" onclick="openForgotModal()">¿Contraseña olvidada?</button>
+  </form>
+</div>
+
+<!-- Modal: confirmar reset de contraseña -->
+<div class="modal-overlay" id="forgotModal" onclick="closeForgotModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3>Recuperar contraseña</h3>
+    <p>Introduce tu correo electrónico. Te enviaremos una nueva contraseña aleatoria.</p>
+    <div class="field">
+      <label for="forgotEmail">Correo electrónico</label>
+      <input type="email" id="forgotEmail" placeholder="tu.correo@dominio.com" autocomplete="email" />
+    </div>
+    <div class="error" id="forgotError" style="margin:0;"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeForgotModal()">Cancelar</button>
+      <button class="btn" id="forgotSubmitBtn" onclick="submitForgot()">Aceptar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleTheme() {
+  const isLight = document.documentElement.classList.toggle('light-mode');
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+  document.getElementById('themeIcon').textContent = isLight ? '☀️' : '🌙';
+}
+
+// Restaurar tema al cargar
+(function() {
+  if (localStorage.getItem('theme') === 'light') {
+    document.documentElement.classList.add('light-mode');
+    document.getElementById('themeIcon').textContent = '☀️';
+  }
+})();
+
+async function handleLogin(e) {
+  e.preventDefault();
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const btn = document.getElementById('submitBtn');
+  const err = document.getElementById('errorMsg');
+  const info = document.getElementById('infoMsg');
+
+  btn.disabled = true;
+  btn.textContent = 'Verificando...';
+  err.classList.remove('visible');
+  info.classList.remove('visible');
+
+  try {
+    const r = await fetch('/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || 'Error desconocido');
+    localStorage.setItem('panel_token', data.token);
+    window.location.href = 'admin-panel.html';
+  } catch (ex) {
+    err.textContent = ex.message;
+    err.classList.add('visible');
+    btn.disabled = false;
+    btn.textContent = 'Entrar';
+  }
+}
+
+function openForgotModal() {
+  // Pre-rellenar con el usuario tecleado si parece un email
+  const userField = document.getElementById('username').value.trim();
+  const emailField = document.getElementById('forgotEmail');
+  emailField.value = /@/.test(userField) ? userField : '';
+  document.getElementById('forgotError').textContent = '';
+  document.getElementById('forgotError').classList.remove('visible');
+  document.getElementById('forgotModal').classList.add('open');
+  setTimeout(() => emailField.focus(), 50);
+}
+
+function closeForgotModal(e) {
+  if (e && e.target !== document.getElementById('forgotModal')) return;
+  document.getElementById('forgotModal').classList.remove('open');
+}
+
+async function submitForgot() {
+  const username = document.getElementById('username').value.trim();
+  const email = document.getElementById('forgotEmail').value.trim();
+  const btn = document.getElementById('forgotSubmitBtn');
+  const err = document.getElementById('errorMsg');
+  const info = document.getElementById('infoMsg');
+  const modalErr = document.getElementById('forgotError');
+
+  modalErr.classList.remove('visible');
+  if (!username) {
+    modalErr.textContent = 'Primero teclea tu nombre de usuario en el formulario.';
+    modalErr.classList.add('visible');
+    return;
+  }
+  if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    modalErr.textContent = 'Introduce un correo electrónico válido.';
+    modalErr.classList.add('visible');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+  err.classList.remove('visible');
+  info.classList.remove('visible');
+
+  try {
+    const r = await fetch('/auth/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, email }),
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || 'Error');
+    closeForgotModal();
+    info.textContent = data.message || 'Se ha enviado un correo con la nueva contraseña.';
+    info.classList.add('visible');
+  } catch (ex) {
+    modalErr.textContent = ex.message;
+    modalErr.classList.add('visible');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Aceptar';
+  }
+}
+</script>
+
+</body>
+</html>

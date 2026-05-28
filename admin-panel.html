@@ -68,7 +68,7 @@
     min-height: 100vh;
     display: grid;
     grid-template-rows: 56px 1fr;
-    grid-template-columns: 260px 1fr;
+    grid-template-columns: 320px 1fr;
   }
 
   /* ── Topbar ── */
@@ -145,6 +145,24 @@
     color: var(--text3);
     padding: 8px 16px 4px;
     font-weight: 600;
+  }
+  /* Estrella de favoritos */
+  .fav-btn {
+    background: none; border: none; cursor: pointer; padding: 4px;
+    color: var(--text3); flex-shrink: 0; display: flex; align-items: center;
+    border-radius: 4px; transition: color 0.15s, background 0.15s;
+  }
+  .fav-btn:hover { background: rgba(255,255,255,0.06); color: var(--amber); }
+  .fav-btn.is-fav { color: var(--amber); }
+  .fav-btn.is-fav svg { fill: var(--amber); }
+  .fav-btn-lg { padding: 8px; }
+  /* Header de grupo Favoritos (no plegable) */
+  .group-header.favorites { color: var(--amber); }
+  .group-header.favorites .group-toggle { display: none; }
+  .favorites-divider {
+    height: 1px; background: var(--border2);
+    margin: 8px 12px 4px;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.04);
   }
   .conv-item {
     padding: 10px 16px;
@@ -223,6 +241,23 @@
     box-shadow: 0 0 0 2px var(--bg3);
   }
   .conv-item.unread { font-weight: 600; }
+  /* Icono de notificación cuando hay mensaje nuevo sin leer */
+  .conv-notif {
+    display: none; align-items: center; justify-content: center;
+    width: 22px; height: 22px; flex-shrink: 0;
+    color: var(--red);
+    animation: notifBell 1.4s ease-in-out infinite;
+  }
+  .conv-item.unread .conv-notif { display: inline-flex; }
+  @keyframes notifBell {
+    0%, 100% { transform: rotate(0deg); }
+    10%, 30% { transform: rotate(-14deg); }
+    20%, 40% { transform: rotate(14deg); }
+    50%      { transform: rotate(0deg); }
+  }
+  /* Header "Conversaciones pendientes" — color y no plegable */
+  .group-header.pending { color: var(--amber); }
+  .group-header.pending .group-toggle { display: none; }
 
   /* ── Main ── */
   main {
@@ -442,6 +477,44 @@
     justify-content: center;
   }
 
+  /* ── Contacto compartido ── */
+  .msg-contact {
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+  .msg-contact-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .msg-contact-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .msg-contact-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .msg-contact-phone {
+    font-size: 12px;
+    color: var(--text2);
+    font-family: var(--font-mono);
+  }
+  .msg-contact-phone a {
+    color: var(--blue);
+    text-decoration: none;
+  }
+  .msg-contact-phone a:hover { text-decoration: underline; }
+
   /* Separador de fecha */
   .date-sep {
     text-align: center; font-size: 11px; color: var(--text3);
@@ -534,14 +607,16 @@
   .toast {
     background: var(--bg2);
     border: 1px solid var(--border2);
-    border-radius: var(--radius-sm);
-    padding: 10px 16px;
-    font-size: 13px;
+    border-radius: var(--radius);
+    padding: 14px 22px;
+    font-size: 15px;
+    font-weight: 500;
     color: var(--text);
     animation: slideIn 0.25s ease;
     pointer-events: auto;
-    max-width: 300px;
-    display: flex; gap: 8px; align-items: center;
+    max-width: 380px;
+    display: flex; gap: 10px; align-items: center;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
   }
   .toast.success { border-color: rgba(37,211,102,0.35); color: var(--green); }
   .toast.error { border-color: rgba(226,75,74,0.35); color: var(--red); }
@@ -828,11 +903,7 @@
   <button onclick="toggleDarkMode()" title="Alternar modo claro/oscuro" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:16px;padding:0;display:flex;align-items:center;">
     <span id="themeIcon">🌙</span>
   </button>
-  <div class="topbar-url">
-    <span class="dot-status" id="connDot"></span>
-    <input type="text" id="serverUrl" placeholder="http://localhost:3000" value="" />
-    <button onclick="connectServer()" style="background:none;border:none;cursor:pointer;color:var(--text2);font-size:12px;padding:0;white-space:nowrap;">Conectar</button>
-  </div>
+  <span class="dot-status" id="connDot" title="Estado de conexión" style="margin-left:8px;"></span>
 </header>
 
 <!-- ── Change-password modal ── -->
@@ -862,12 +933,7 @@
 <!-- ── Sidebar ── -->
 <nav class="sidebar" id="sidebar">
   <div style="padding:0 16px;display:flex;flex-direction:column;gap:8px;padding-top:16px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;">
-      <div class="sidebar-section" style="margin:0;flex:1;">Conversaciones</div>
-      <button onclick="loadConversations()" title="Actualizar" style="background:none;border:none;cursor:pointer;color:var(--text2);padding:4px;display:flex;align-items:center;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 2.2"/></svg>
-      </button>
-    </div>
+    <div class="sidebar-section" style="margin:0;">Conversaciones</div>
     <input type="text" id="convSearch" placeholder="Buscar…"
       style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:8px 12px;color:var(--text);font-size:12px;outline:none;font-family:var(--font);"
       oninput="filterConversations(this.value)" />
@@ -894,6 +960,9 @@
       <div class="chat-title" id="headerTitle"></div>
       <div class="chat-subtitle" id="headerSubtitle"></div>
     </div>
+    <button id="headerFavBtn" class="fav-btn fav-btn-lg" onclick="toggleFavorite(STATE.activeConvId, event)" title="Marcar/Quitar de Favoritos">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    </button>
     <div class="bot-toggle-wrap">
       <div class="bot-toggle-label">Bot: <strong id="toggleLabel">activo</strong></div>
       <label class="toggle-switch" title="Pausar/Reanudar el bot para esta conversación">
@@ -1125,7 +1194,12 @@ async function submitChangePassword() {
     const data = await r.json();
     if (!r.ok) throw new Error(data.error || 'Error');
     document.getElementById('cpModalOverlay').classList.remove('open');
-    toast('Contraseña actualizada correctamente', 'success');
+    toast('Contraseña actualizada. Vuelve a iniciar sesión.', 'success');
+    // Tras cambiar contraseña, cerramos sesión: obliga a re-login con la
+    // nueva credencial y evita arrastrar estado de UI obsoleto (era causa
+    // del bug "Salir no funciona tras cambiar contraseña").
+    setTimeout(() => logout(), 1200);
+    return;
   } catch (ex) {
     errEl.textContent = ex.message;
   } finally {
@@ -1149,7 +1223,31 @@ const STATE = {
   prevLastMessageAt: {},
   lastMessages: {},
   collapsedGroups: new Set(),
+  favorites: new Set(JSON.parse(localStorage.getItem('panel_favorites') || '[]')),
 };
+
+// ── Favoritos (solo frontend, persistido en localStorage; NO toca DB ni
+// máquina de estados del bot) ─────────────────────────────────────────────
+function saveFavorites() {
+  localStorage.setItem('panel_favorites', JSON.stringify([...STATE.favorites]));
+}
+function isFavorite(waId) { return STATE.favorites.has(waId); }
+function toggleFavorite(waId, evt) {
+  if (evt) { evt.stopPropagation(); evt.preventDefault(); }
+  if (!waId) return;
+  if (STATE.favorites.has(waId)) STATE.favorites.delete(waId);
+  else STATE.favorites.add(waId);
+  saveFavorites();
+  renderSidebar();
+  updateHeaderFavButton();
+}
+function updateHeaderFavButton() {
+  const btn = document.getElementById('headerFavBtn');
+  if (!btn) return;
+  const id = STATE.activeConvId;
+  if (!id) { btn.classList.remove('is-fav'); return; }
+  btn.classList.toggle('is-fav', isFavorite(id));
+}
 
 function $(id) { return document.getElementById(id); }
 
@@ -1161,14 +1259,13 @@ function toggleDarkMode() {
   localStorage.setItem('theme', isLightMode ? 'dark' : 'light');
 }
 
-// Restaurar tema al cargar y configurar serverUrl
+// Restaurar tema al cargar
 document.addEventListener('DOMContentLoaded', () => {
   const saved = localStorage.getItem('theme');
   if (saved === 'light') {
     document.documentElement.classList.add('light-mode');
     $('themeIcon').textContent = '☀️';
   }
-  $('serverUrl').value = window.location.origin;
   STATE.serverUrl = window.location.origin;
 });
 
@@ -1187,7 +1284,7 @@ function setConnected(ok) {
 }
 
 function getUrl() {
-  return ($('serverUrl').value || 'http://localhost:3000').replace(/\/$/, '');
+  return (STATE.serverUrl || window.location.origin).replace(/\/$/, '');
 }
 
 async function connectServer() {
@@ -1289,25 +1386,37 @@ function renderSidebar() {
 
   let html = '';
 
+  // Sección Favoritos siempre arriba — no plegable. Aparece en TODOS los
+  // modos de orden. Las conversaciones favoritas también aparecen en su
+  // sección normal (la estrella las marca).
+  const favConvs = convs.filter(c => STATE.favorites.has(c.waId));
+  if (favConvs.length) {
+    favConvs.sort((a, b) => (b.lastMessageAt || 0) - (a.lastMessageAt || 0));
+    html += `<div class="group-header favorites"><span>★ Favoritos</span></div>`;
+    html += `<div class="group-items">${favConvs.map(c => renderConvItem(c)).join('')}</div>`;
+    html += `<div class="favorites-divider"></div>`;
+  }
+
   if (STATE.sortMode === 'recent') {
     // Ordenar por reciente
     convs.sort((a, b) => (b.lastMessageAt || 0) - (a.lastMessageAt || 0));
-    html = convs.map(conv => renderConvItem(conv)).join('');
+    html += convs.map(conv => renderConvItem(conv)).join('');
   } else if (STATE.sortMode === 'stage') {
     // Agrupar por estado
     const groups = groupByStage(convs);
-    html = renderGroupedConvs(groups);
+    html += renderGroupedConvs(groups);
   } else if (STATE.sortMode === 'paused') {
     // Pausados primero
     const paused = convs.filter(c => c.botPaused === true);
     const active = convs.filter(c => c.botPaused !== true);
     paused.sort((a, b) => (b.lastMessageAt || 0) - (a.lastMessageAt || 0));
     active.sort((a, b) => (b.lastMessageAt || 0) - (a.lastMessageAt || 0));
-    if (paused.length) html += `<div class="group-header">Pausados</div>` + paused.map(c => renderConvItem(c)).join('');
+    if (paused.length) html += `<div class="group-header pending">Conversaciones pendientes</div>` + paused.map(c => renderConvItem(c)).join('');
     if (active.length) html += `<div class="group-header">Activos</div>` + active.map(c => renderConvItem(c)).join('');
   }
 
   list.innerHTML = html;
+  updateHeaderFavButton();
 }
 
 function renderConvItem(conv) {
@@ -1323,27 +1432,34 @@ function renderConvItem(conv) {
   const isActive = STATE.activeConvId === id;
   const isUnread = STATE.unreadConvs.has(id) && !isActive;
 
-  // Mostrar último mensaje solo si hay mensajes sin leer, sino mostrar stage
-  let secondLine = stage;
+  // El stage está duplicado con el badge a la derecha; lo quitamos del
+  // segundo renglón. Solo mostramos el preview del último mensaje cuando
+  // hay mensajes sin leer (info útil), si no, solo el expediente.
+  let secondLine = '';
   if (isUnread && STATE.lastMessages[id]) {
     let msgPreview = STATE.lastMessages[id];
-    if (msgPreview.length > 50) {
-      msgPreview = msgPreview.substring(0, 50) + '…';
-    }
-    secondLine = msgPreview;
+    if (msgPreview.length > 50) msgPreview = msgPreview.substring(0, 50) + '…';
+    secondLine = ` · <span style="color:var(--text3);font-size:11px;">${msgPreview}</span>`;
   }
 
   const avatarStatus = getAvatarStatus(conv);
   const avatarClass = avatarStatus ? ` status-${avatarStatus}` : '';
 
+  const favClass = isFavorite(id) ? ' is-fav' : '';
   return `<div class="conv-item${isActive ? ' active' : ''}${isPaused ? ' paused' : ''}${isUnread ? ' unread' : ''}${isClosed ? ' closed' : ''}"
     onclick="selectConv('${id}')">
     <div class="conv-avatar${avatarClass}">${getAvatarIcon()}</div>
     <div class="conv-meta">
       <div class="conv-phone">${phone}</div>
-      <div class="conv-nexp">${nexp} · <span style="color:var(--text3);font-size:11px;">${secondLine}</span></div>
+      <div class="conv-nexp">${nexp}${secondLine}</div>
     </div>
+    <span class="conv-notif" title="Mensaje nuevo sin leer">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    </span>
     <span class="conv-badge ${badge.cls}">${badge.label}</span>
+    <button class="fav-btn${favClass}" onclick="toggleFavorite('${id}', event)" title="Favorito">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    </button>
     <button class="state-btn" onclick="openStateModal(event, '${id}')" title="Cambiar estado">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>
@@ -1376,24 +1492,31 @@ function groupByStage(convs) {
 function renderGroupedConvs(groups) {
   const stageLabels = {
     'cerrado': 'Cerrado',
-    'pausado': 'Pausados',
+    'pausado': 'Conversaciones pendientes',
     'consent': 'Consentimiento',
     'identificacion': 'Identificación',
     'valoracion': 'Valoración',
     'agendando': 'Agendando',
     'escalated': 'Escalado',
   };
+  // Grupos NO plegables — su header se renderiza sin botón de toggle.
+  const nonCollapsible = new Set(['pausado']);
 
   let html = '';
   const order = ['cerrado', 'pausado', 'identificacion', 'valoracion', 'agendando', 'escalated', 'consent'];
 
   order.forEach(key => {
     if (groups[key] && groups[key].length) {
-      const isCollapsed = STATE.collapsedGroups.has(key);
+      const isNonCollapsible = nonCollapsible.has(key);
+      const isCollapsed = !isNonCollapsible && STATE.collapsedGroups.has(key);
       const icon = isCollapsed ? '▶' : '▼';
-      html += `<div class="group-header">
+      const toggleBtn = isNonCollapsible
+        ? ''
+        : `<button class="group-toggle" onclick="toggleGroupCollapse('${key}')" title="Plegar/Desplegar">${icon}</button>`;
+      const headerCls = isNonCollapsible ? 'group-header pending' : 'group-header';
+      html += `<div class="${headerCls}">
         <span>${stageLabels[key] || key}</span>
-        <button class="group-toggle" onclick="toggleGroupCollapse('${key}')" title="Plegar/Desplegar">${icon}</button>
+        ${toggleBtn}
       </div>`;
       const itemsClass = isCollapsed ? 'group-items collapsed' : 'group-items';
       html += `<div class="${itemsClass}">`;
@@ -1801,7 +1924,7 @@ async function selectConv(waId) {
     headerAvatar.innerHTML = getAvatarIcon();
   }
   if (headerTitle) headerTitle.textContent = phone;
-  if (headerSubtitle) headerSubtitle.textContent = `Expediente: ${conv.nexp || '—'} · Stage: ${conv.stage || '—'} · Estado: ${conv.status || '—'}`;
+  if (headerSubtitle) headerSubtitle.textContent = `Expediente: ${conv.nexp || '—'}`;
 
   // Sincronizar botPaused desde el servidor
   const isPaused = conv.botPaused === true || STATE.botPaused[waId] || false;
@@ -1834,6 +1957,14 @@ async function loadMessages(waId) {
 function renderMessages(messages, waId) {
   const area = $('messagesArea');
   const isEmpty = $('emptyChat');
+
+  // Skip render si los mensajes son IDÉNTICOS al último render para esta
+  // conversación. Sin esto el polling de 5s destruye el DOM y resetea los
+  // elementos <video>/<audio> en reproducción (el spinner aparece cada vez
+  // que se recrean por preload="metadata").
+  const signature = `${waId}|${messages.length}|${messages[messages.length-1]?.timestamp || ''}|${messages[messages.length-1]?.text || ''}`;
+  if (area.dataset.msgSignature === signature) return;
+  area.dataset.msgSignature = signature;
 
   if (!messages.length) {
     area.innerHTML = '<div class="empty-chat" id="emptyChat"><div class="empty-icon">💬</div><div>Sin mensajes en esta conversación</div></div>';
@@ -1874,12 +2005,21 @@ function renderMessages(messages, waId) {
       mediaHtml += renderMediaElement(url, type);
     });
 
+    // Extraer y renderizar contactos compartidos ("[CONTACTO] Nombre — Tel").
+    // Cada match se quita del texto plano y se convierte en una tarjeta.
+    let contactsHtml = '';
+    textContent = textContent.replace(/^\[CONTACTO\][^\n]*$/gm, (line) => {
+      contactsHtml += renderContactCard(line);
+      return '';
+    }).replace(/\n{2,}/g, '\n').trim();
+
     const bubbleContent = textContent ? `<div class="msg-bubble${extraCls}">${escHtml(textContent)}</div>` : '';
     html += `<div class="msg-row ${isOut ? 'out' : 'in'}">
       <div class="msg-avatar">${getAvatarIcon()}</div>
       <div>
         ${bubbleContent}
         ${mediaHtml}
+        ${contactsHtml}
         <div class="msg-meta">${tag} ${timeStr}</div>
       </div>
     </div>`;
@@ -1897,14 +2037,38 @@ function escHtml(s) {
     .replace(/"/g,'&quot;');
 }
 
+// ── Contacto compartido ──
+function renderContactCard(line) {
+  // Línea formato: "[CONTACTO] Nombre — +34611222333" (Tel opcional)
+  const m = line.match(/^\[CONTACTO\]\s*([^—]+?)(?:\s*—\s*(.+))?$/);
+  if (!m) return '';
+  const name = (m[1] || '').trim() || 'Sin nombre';
+  const phone = (m[2] || '').trim();
+  const telLink = phone
+    ? `<a href="tel:${escHtml(phone.replace(/\s/g, ''))}">${escHtml(phone)}</a>`
+    : '<span style="color:var(--text3);">Sin teléfono</span>';
+  return `<div class="msg-contact">
+    <div class="msg-contact-icon">📇</div>
+    <div class="msg-contact-info">
+      <div class="msg-contact-name">${escHtml(name)}</div>
+      <div class="msg-contact-phone">${telLink}</div>
+    </div>
+  </div>`;
+}
+
 // ── Media helpers ──
 function detectMediaType(url) {
   if (!url) return null;
-  const lower = url.toLowerCase();
-  if (/\.(jpg|jpeg|png|gif|webp)(\?|$)/i.test(lower)) return 'image';
-  if (/\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(lower)) return 'video';
-  if (/\.(mp3|wav|aac|m4a|ogg)(\?|$)/i.test(lower)) return 'audio';
-  if (/\.(pdf|doc|docx|xls|xlsx|ppt|pptx|txt|zip)(\?|$)/i.test(lower)) return 'document';
+  // Quitar query string para detección por extensión
+  const lower = url.toLowerCase().split('?')[0];
+  if (/\.(jpg|jpeg|png|gif|webp|bmp|heic|heif)$/i.test(lower)) return 'image';
+  if (/\.(mp4|webm|mov|avi|mkv|m4v|ogv|3gp)$/i.test(lower)) return 'video';
+  if (/\.(mp3|wav|aac|m4a|ogg|oga|opus|amr)$/i.test(lower)) return 'audio';
+  if (/\.(pdf|doc|docx|xls|xlsx|csv|ppt|pptx|txt|zip|rar|7z)$/i.test(lower)) return 'document';
+  // Fallback solo para rutas internas /media/... (archivo guardado en S3 del
+  // bot). NO aplicar a http(s) externos para no romper hipervínculos normales
+  // que el admin o el bot puedan compartir en chat.
+  if (lower.startsWith('/media/')) return 'file';
   return null;
 }
 
@@ -1914,8 +2078,13 @@ function getMediaIcon(type) {
     video: '🎥',
     audio: '🎵',
     document: '📄',
+    file: '📎',
     pdf: '📕',
-    zip: '📦',
+    doc: '📝', docx: '📝',
+    xls: '📊', xlsx: '📊', csv: '📊',
+    ppt: '📑', pptx: '📑',
+    zip: '📦', rar: '📦', '7z': '📦',
+    txt: '📃',
   };
   return icons[type] || '📎';
 }
@@ -1935,24 +2104,26 @@ function renderMediaElement(url, type) {
 
   switch (type) {
     case 'image':
-      return `<div class="msg-media"><img src="${escapedUrl}" alt="imagen" class="msg-media-image" loading="lazy" onerror="this.parentElement.innerHTML='<div style=&quot;padding:10px;color:var(--text3);font-size:12px;&quot;>Error al cargar imagen</div>'"></div>`;
+      return `<div class="msg-media"><a href="${escapedUrl}" target="_blank" rel="noopener" title="Abrir en pestaña nueva"><img src="${escapedUrl}" alt="imagen" class="msg-media-image" loading="lazy" onerror="this.parentElement.parentElement.innerHTML='<div style=&quot;padding:10px;color:var(--text3);font-size:12px;&quot;>Error al cargar imagen</div>'"></a></div>`;
 
     case 'video':
-      return `<div class="msg-media"><video controls class="msg-media-video" preload="metadata"><source src="${escapedUrl}" type="video/mp4"><source src="${escapedUrl}" type="video/webm">Tu navegador no soporta videos. <a href="${escapedUrl}" download style="color:var(--blue);">Descargar vídeo</a></video></div>`;
+      return `<div class="msg-media"><video controls class="msg-media-video" preload="metadata"><source src="${escapedUrl}">Tu navegador no soporta este vídeo. <a href="${escapedUrl}" download style="color:var(--blue);">Descargar</a></video></div>`;
 
     case 'audio': {
       const audioId = 'audio-' + Math.random().toString(36).substr(2, 9);
-      return `<div class="msg-media-audio"><audio id="${audioId}" controls style="flex:1;"><source src="${escapedUrl}" type="audio/mpeg"><source src="${escapedUrl}" type="audio/wav"><source src="${escapedUrl}" type="audio/ogg">Tu navegador no soporta audio.</audio><a href="${escapedUrl}" download title="Descargar audio" style="color:var(--blue);text-decoration:none;font-size:16px;">⬇️</a></div>`;
+      return `<div class="msg-media-audio"><audio id="${audioId}" controls preload="metadata" style="flex:1;"><source src="${escapedUrl}">Tu navegador no soporta audio.</audio><a href="${escapedUrl}" download title="Descargar audio" style="color:var(--blue);text-decoration:none;font-size:16px;">⬇️</a></div>`;
     }
 
-    case 'document': {
+    case 'document':
+    case 'file': {
       const fileName = getFileName(url);
-      const ext = fileName.split('.').pop().toLowerCase();
-      const icon = getMediaIcon(ext);
-      return `<a href="${escapedUrl}" download class="msg-media-document" title="Descargar ${fileName}">
+      const ext = (fileName.split('.').pop() || '').toLowerCase();
+      const icon = getMediaIcon(ext) || getMediaIcon(type);
+      const displayName = fileName && fileName !== 'archivo' ? fileName : 'Archivo recibido';
+      return `<a href="${escapedUrl}" download target="_blank" rel="noopener" class="msg-media-document" title="Descargar ${escHtml(displayName)}">
         <div class="msg-media-document-icon">${icon}</div>
         <div class="msg-media-document-info">
-          <div class="msg-media-document-name">${escHtml(fileName)}</div>
+          <div class="msg-media-document-name">${escHtml(displayName)}</div>
         </div>
         <div class="msg-media-download">⬇️</div>
       </a>`;
@@ -1965,7 +2136,9 @@ function renderMediaElement(url, type) {
 
 function extractMediaUrls(text) {
   if (!text) return [];
-  // Capturar URLs http/https y también URLs locales (/media/...)
+  // Capturar URLs http/https y rutas locales (/media/...). No filtrar por tipo
+  // detectado: si no es imagen/vídeo/audio, detectMediaType devuelve "file" y
+  // se renderiza como descarga.
   const urlRegex = /(https?:\/\/[^\s]+|\/media\/[^\s]+)/gi;
   const urls = text.match(urlRegex) || [];
   return urls.map(url => ({ url: url.trim(), type: detectMediaType(url) })).filter(m => m.type);
