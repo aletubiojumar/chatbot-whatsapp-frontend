@@ -879,6 +879,130 @@
   .cf-success-notice-sub {
     font-size: 12px; color: var(--text2); margin-top: 6px;
   }
+
+  /* ── Statistics overlay ── */
+  .stats-overlay {
+    display: none;
+    position: fixed;
+    top: 56px; left: 0; right: 0; bottom: 0;
+    background: var(--bg);
+    z-index: 150;
+    overflow-y: auto;
+    padding: 24px 32px;
+  }
+  .stats-overlay.open { display: block; }
+  .stats-hdr {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 16px; gap: 16px;
+  }
+  .stats-hdr-left { flex: 1; }
+  .stats-title { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .stats-sub { font-size: 12px; color: var(--text3); }
+  .stats-hdr-btns { display: flex; gap: 8px; }
+  .stats-btn {
+    background: var(--bg3); border: 1px solid var(--border2); border-radius: 8px;
+    color: var(--text2); cursor: pointer; font-size: 12px; font-weight: 500;
+    padding: 7px 14px; display: flex; align-items: center; gap: 6px;
+    transition: background 0.15s, color 0.15s; font-family: var(--font);
+  }
+  .stats-btn:hover { background: var(--border2); color: var(--text); }
+  .stats-btn:disabled { opacity: 0.5; cursor: default; }
+  .stats-filters {
+    display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap;
+    margin-bottom: 10px;
+    padding: 12px 14px; background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+  .sf-group { display: flex; flex-direction: column; gap: 4px; }
+  .sf-group label {
+    font-size: 10px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.07em; color: var(--text3);
+  }
+  .sf-group input, .sf-group select {
+    background: var(--bg3); border: 1px solid var(--border2); border-radius: 6px;
+    color: var(--text); font-size: 12px; padding: 6px 10px; outline: none;
+    font-family: var(--font); transition: border-color 0.15s;
+  }
+  .sf-group input:focus, .sf-group select:focus { border-color: var(--blue); }
+  .sf-group input[type="date"] { min-width: 130px; }
+  .sf-group select { min-width: 180px; cursor: pointer; }
+  .stats-conv-count { font-size: 12px; color: var(--text3); margin-bottom: 16px; padding: 0 2px; }
+  .stats-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 960px) { .stats-cards { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .stats-cards { grid-template-columns: 1fr; } }
+  .stat-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 18px;
+    display: flex; flex-direction: column; gap: 5px;
+    border-left: 3px solid transparent;
+  }
+  .stat-card-lbl {
+    font-size: 10px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--text3);
+  }
+  .stat-card-val {
+    font-size: 26px; font-weight: 700;
+    font-variant-numeric: tabular-nums; line-height: 1.1;
+    color: var(--text);
+  }
+  .stat-card-sub { font-size: 11px; color: var(--text3); }
+  .stat-card.c-green { border-left-color: var(--green); }
+  .stat-card.c-green .stat-card-val { color: var(--green); }
+  .stat-card.c-blue { border-left-color: var(--blue); }
+  .stat-card.c-blue .stat-card-val { color: var(--blue); }
+  .stat-card.c-amber { border-left-color: var(--amber); }
+  .stat-card.c-amber .stat-card-val { color: var(--amber); }
+  .stat-card.c-red { border-left-color: var(--red); }
+  .stat-card.c-red .stat-card-val { color: var(--red); }
+  .stat-card.c-neutral { border-left-color: var(--border2); }
+  .stats-resumen-hdr {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px; background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); cursor: pointer; transition: background 0.15s;
+  }
+  .stats-resumen-hdr:hover { background: var(--bg3); }
+  .stats-section-ttl { font-size: 13px; font-weight: 600; color: var(--text); }
+  .stats-tbl {
+    width: 100%; max-width: 480px; border-collapse: collapse;
+    border: 1px solid var(--border); border-radius: var(--radius);
+    overflow: hidden; background: var(--bg2);
+  }
+  .stats-tbl th {
+    background: var(--bg3); text-align: left;
+    font-size: 10px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--text3);
+    padding: 9px 14px; border-bottom: 1px solid var(--border);
+  }
+  .stats-tbl th:not(:first-child) { text-align: right; }
+  .stats-tbl td {
+    padding: 9px 14px; font-size: 13px; color: var(--text);
+    border-bottom: 1px solid var(--border);
+  }
+  .stats-tbl td:not(:first-child) {
+    text-align: right; font-variant-numeric: tabular-nums;
+  }
+  .stats-tbl tbody tr:last-child td { border-bottom: none; }
+  .stats-tbl tfoot td {
+    font-weight: 600; background: var(--bg3); color: var(--text);
+    border-top: 1px solid var(--border2);
+  }
+  .stats-loading {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 16px; padding: 80px 20px; color: var(--text3); font-size: 14px;
+  }
+  .stats-spinner {
+    width: 32px; height: 32px;
+    border: 3px solid var(--border2);
+    border-top-color: var(--blue);
+    border-radius: 50%;
+    animation: stats-spin 0.7s linear infinite;
+  }
+  @keyframes stats-spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
@@ -889,9 +1013,13 @@
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#25d366" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
     </svg>
-    Manolita
+    Manolilla
   </a>
   <div class="topbar-sep"></div>
+  <button onclick="openStatsView()" class="topbar-icon-btn" title="Ver estadísticas">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    <span style="font-size:12px;">Estadísticas</span>
+  </button>
   <button onclick="openChangePasswordModal()" class="topbar-icon-btn" title="Cambiar contraseña">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     <span style="font-size:12px;">Contraseña</span>
@@ -995,6 +1123,65 @@
 </main>
 
 <div id="toasts"></div>
+
+<!-- ── Statistics overlay ── -->
+<div class="stats-overlay" id="statsOverlay">
+  <div class="stats-hdr">
+    <div class="stats-hdr-left">
+      <div class="stats-title">Estadísticas</div>
+      <div class="stats-sub" id="statsSubtitle">Vista general de conversaciones</div>
+    </div>
+    <div class="stats-hdr-btns">
+      <button class="stats-btn" onclick="loadStats()" id="statsRefreshBtn">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        Actualizar
+      </button>
+      <button class="stats-btn" onclick="closeStatsView()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Cerrar
+      </button>
+    </div>
+  </div>
+
+  <div class="stats-filters">
+    <div class="sf-group">
+      <label>Desde</label>
+      <input type="date" id="statsDateFrom" oninput="applyStatsFilter()">
+    </div>
+    <div class="sf-group">
+      <label>Hasta</label>
+      <input type="date" id="statsDateTo" oninput="applyStatsFilter()">
+    </div>
+    <div class="sf-group">
+      <label>Campo de fecha</label>
+      <select id="statsDateField" onchange="applyStatsFilter()">
+        <option value="createdAt">Fecha envío plantilla</option>
+        <option value="lastMessageAt">Fecha último mensaje</option>
+        <option value="closedAt">Fecha cierre</option>
+      </select>
+    </div>
+    <button class="stats-btn" onclick="clearStatsFilter()" style="align-self:flex-end;">Limpiar filtros</button>
+  </div>
+
+  <div class="stats-conv-count" id="statsConvCount"></div>
+
+  <div class="stats-loading" id="statsLoading" style="display:none;">
+    <div class="stats-spinner"></div>
+    <div id="statsLoadingText">Cargando estadísticas…</div>
+  </div>
+
+  <div class="stats-cards" id="statsCards" style="display:none;"></div>
+
+  <div id="statsResumenSection" style="display:none;">
+    <div class="stats-resumen-hdr" onclick="toggleStatsResumen()">
+      <span class="stats-section-ttl">Resumen por estado</span>
+      <span class="stats-btn" id="statsResumenToggleBtn" style="cursor:pointer;">Mostrar</span>
+    </div>
+    <div id="statsResumenBody" style="display:none;padding-top:12px;">
+      <table class="stats-tbl" id="statsTableEl"></table>
+    </div>
+  </div>
+</div>
 
 <!-- ── State change modal ── -->
 <div class="state-modal-overlay" id="stateModalOverlay" onclick="closeStateModal(event)">
@@ -2289,6 +2476,242 @@ function startPolling() {
 
   STATE.pollTimer = setInterval(pollOnce, 5000);
 }
+
+// ── Statistics view ──────────────────────────────────────────────────────────
+
+const STATS = {
+  allConvs: [],
+  detailsMap: {},
+  messagesMap: {},
+  filtered: [],
+  resumenOpen: false,
+};
+
+function openStatsView() {
+  $('statsOverlay').classList.add('open');
+  if (STATS.allConvs.length === 0) loadStats();
+}
+
+function closeStatsView() {
+  $('statsOverlay').classList.remove('open');
+}
+
+function clearStatsFilter() {
+  $('statsDateFrom').value = '';
+  $('statsDateTo').value = '';
+  applyStatsFilter();
+}
+
+function applyStatsFilter() {
+  if (STATS.allConvs.length === 0) return;
+  const from  = $('statsDateFrom').value;
+  const to    = $('statsDateTo').value;
+  const field = $('statsDateField').value;
+
+  if (!from && !to) {
+    STATS.filtered = STATS.allConvs;
+  } else {
+    const fromMs = from ? new Date(from).getTime() : 0;
+    const toMs   = to   ? new Date(to + 'T23:59:59').getTime() : Infinity;
+    STATS.filtered = STATS.allConvs.filter(conv => {
+      let ts = conv[field];
+      if (!ts && field === 'closedAt') ts = conv.lastMessageAt;
+      if (!ts) ts = conv.createdAt || conv.lastMessageAt;
+      const ms = tsToMs(ts);
+      return ms ? ms >= fromMs && ms <= toMs : false;
+    });
+  }
+
+  renderStats(STATS.filtered, STATS.detailsMap, STATS.messagesMap);
+}
+
+async function loadStats() {
+  const refreshBtn = $('statsRefreshBtn');
+  if (refreshBtn) refreshBtn.disabled = true;
+
+  $('statsLoading').style.display = 'flex';
+  $('statsCards').style.display = 'none';
+  $('statsResumenSection').style.display = 'none';
+  $('statsConvCount').textContent = '';
+
+  try {
+    $('statsLoadingText').textContent = 'Cargando conversaciones…';
+    const r = await authFetch(`${STATE.serverUrl}/admin/conversations`);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const data = await r.json();
+    STATS.allConvs = data.conversations || [];
+
+    $('statsLoadingText').textContent = `Cargando detalles (${STATS.allConvs.length} conversaciones)…`;
+    STATS.detailsMap = {};
+    await Promise.allSettled(STATS.allConvs.map(async conv => {
+      try {
+        const dr = await authFetch(`${STATE.serverUrl}/admin/conversations/${conv.waId}/details`);
+        if (dr.ok) STATS.detailsMap[conv.waId] = await dr.json();
+      } catch {}
+    }));
+
+    $('statsLoadingText').textContent = 'Calculando métricas de tiempo…';
+    STATS.messagesMap = {};
+    const withResponse = STATS.allConvs.filter(c => c.lastUserMessageAt && c.lastUserMessageAt > 0);
+    await Promise.allSettled(withResponse.map(async conv => {
+      try {
+        const mr = await authFetch(`${STATE.serverUrl}/admin/conversations/${conv.waId}/messages`);
+        if (mr.ok) {
+          const md = await mr.json();
+          STATS.messagesMap[conv.waId] = md.messages || [];
+        }
+      } catch {}
+    }));
+
+    applyStatsFilter();
+  } catch (e) {
+    $('statsLoadingText').textContent = `Error: ${e.message}`;
+    toast(`Error cargando estadísticas: ${e.message}`, 'error');
+  } finally {
+    $('statsLoading').style.display = 'none';
+    if (refreshBtn) refreshBtn.disabled = false;
+  }
+}
+
+function tsToMs(ts) {
+  if (!ts) return null;
+  const n = typeof ts === 'number' ? ts : new Date(ts).getTime();
+  return isNaN(n) ? null : n;
+}
+
+function formatDuration(ms) {
+  if (!ms || ms <= 0) return '—';
+  const s = Math.floor(ms / 1000);
+  const d = Math.floor(s / 86400);
+  const h = Math.floor((s % 86400) / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  if (d > 0) return `${d}d ${h}h ${m}m`;
+  if (h > 0) return `${h} h ${m} min`;
+  if (m > 0) return `${m}m ${sec}s`;
+  return `${sec}s`;
+}
+
+function isDigitalSi(waId) {
+  const d = STATS.detailsMap[waId];
+  if (!d) return false;
+  const dig = String(d.digital || '').trim().toLowerCase();
+  return dig === 'sí' || dig === 'si' || dig.startsWith('si-');
+}
+
+function renderStats(convs, detailsMap, messagesMap) {
+  const total = convs.length;
+
+  const terminadas     = convs.filter(c => c.isClosed === true);
+  const enCurso        = convs.filter(c => !c.isClosed);
+  const enConversacion = enCurso.filter(c => c.lastUserMessageAt && c.lastUserMessageAt > 0);
+  const enEspera       = enCurso.filter(c => !(c.lastUserMessageAt > 0));
+
+  const contactadas    = terminadas.filter(c => c.lastUserMessageAt && c.lastUserMessageAt > 0);
+  const noContestan    = terminadas.filter(c => !(c.lastUserMessageAt > 0));
+
+  const withDigitalAll         = terminadas.filter(c => isDigitalSi(c.waId));
+  const withDigitalContactadas = contactadas.filter(c => isDigitalSi(c.waId));
+
+  const telefonoIncorrecto = terminadas.filter(c => {
+    const d = detailsMap[c.waId];
+    return d && (d.anotacion || '').toLowerCase() === 'contacto-erroneo';
+  });
+
+  const rechazadas = terminadas.filter(c => {
+    const d = detailsMap[c.waId];
+    const an = d ? (d.anotacion || '').toLowerCase() : '';
+    return c.status === 'escalated' || c.stage === 'escalated'
+      || an === 'asegurado-no-responde' || an === 'asegurado-deja-responder';
+  });
+
+  let totalFirstResponse = 0, countFirstResponse = 0;
+  let totalToClose = 0, countToClose = 0;
+
+  convs.forEach(conv => {
+    const msgs = messagesMap[conv.waId];
+    if (!msgs || !msgs.length) return;
+    const botTs  = msgs.filter(m => m.direction === 'out').map(m => tsToMs(m.timestamp)).filter(Boolean);
+    const userTs = msgs.filter(m => m.direction === 'in').map(m => tsToMs(m.timestamp)).filter(Boolean);
+    if (botTs.length && userTs.length) {
+      const fb = Math.min(...botTs), fu = Math.min(...userTs);
+      if (fu > fb) { totalFirstResponse += fu - fb; countFirstResponse++; }
+    }
+    if (conv.isClosed && userTs.length) {
+      const fu = Math.min(...userTs);
+      const et = tsToMs(conv.lastMessageAt) || Math.max(...msgs.map(m => tsToMs(m.timestamp)).filter(Boolean));
+      if (et && et > fu) { totalToClose += et - fu; countToClose++; }
+    }
+  });
+
+  const avgFirstResponse = countFirstResponse > 0 ? formatDuration(Math.round(totalFirstResponse / countFirstResponse)) : '—';
+  const avgToClose       = countToClose > 0       ? formatDuration(Math.round(totalToClose / countToClose))             : '—';
+  const pct = (n, d) => d > 0 ? (n / d * 100).toFixed(1) + '%' : '—';
+
+  $('statsSubtitle').textContent = `Actualizado ${new Date().toLocaleString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' })}`;
+  $('statsConvCount').textContent = `${total} conversaciones`;
+
+  const cards = [
+    { lbl: 'En curso',                   val: String(enCurso.length),              sub: `${enConversacion.length} en conversación + ${enEspera.length} en espera`,                        cls: 'c-blue'    },
+    { lbl: 'En conversación',            val: String(enConversacion.length),        sub: 'Conversaciones activas',                                                                           cls: 'c-green'   },
+    { lbl: 'En espera',                  val: String(enEspera.length),              sub: 'Esperando respuesta',                                                                              cls: 'c-amber'   },
+    { lbl: 'Terminadas',                 val: String(terminadas.length),            sub: 'Excluye en conversación y en espera',                                                              cls: 'c-neutral' },
+    { lbl: 'Contactadas',                val: pct(contactadas.length,         terminadas.length),  sub: `${contactadas.length} de ${terminadas.length} terminadas`,                         cls: 'c-green'   },
+    { lbl: 'No contestan',               val: pct(noContestan.length,         terminadas.length),  sub: `${noContestan.length} de ${terminadas.length} terminadas`,                         cls: 'c-red'     },
+    { lbl: 'Videoperitación absoluto',   val: pct(withDigitalAll.length,      terminadas.length),  sub: `${withDigitalAll.length} de ${terminadas.length} terminadas`,                      cls: 'c-amber'   },
+    { lbl: 'Videoperitación relativo',   val: pct(withDigitalContactadas.length, contactadas.length), sub: `${withDigitalContactadas.length} de ${contactadas.length} contactadas`,         cls: 'c-amber'   },
+    { lbl: 'Teléfono incorrecto',        val: pct(telefonoIncorrecto.length,  terminadas.length),  sub: `${telefonoIncorrecto.length} de ${terminadas.length} terminadas`,                  cls: 'c-red'     },
+    { lbl: 'Rechazadas',                 val: pct(rechazadas.length,          terminadas.length),  sub: `${rechazadas.length} de ${terminadas.length} terminadas`,                          cls: 'c-red'     },
+    { lbl: 'Media primera respuesta',    val: avgFirstResponse,                                    sub: 'Resumen global',                                                                    cls: 'c-neutral' },
+    { lbl: 'Media de respuesta a final', val: avgToClose,                                          sub: 'Resumen global',                                                                    cls: 'c-neutral' },
+  ];
+
+  $('statsCards').innerHTML = cards.map(c => `
+    <div class="stat-card ${c.cls}">
+      <div class="stat-card-lbl">${c.lbl}</div>
+      <div class="stat-card-val">${c.val}</div>
+      <div class="stat-card-sub">${c.sub}</div>
+    </div>`).join('');
+  $('statsCards').style.display = 'grid';
+
+  // Resumen por estado table
+  const stages = {};
+  convs.forEach(c => {
+    let key = c.stage || 'consent';
+    if (c.isClosed) key = 'cerrado';
+    else if (c.botPaused) key = 'pausado';
+    stages[key] = (stages[key] || 0) + 1;
+  });
+  const stageLabels = {
+    cerrado:'Cerrado', pausado:'Pausado', consent:'Consentimiento',
+    identificacion:'Identificación', valoracion:'Valoración',
+    agendando:'Agendando', escalated:'Escalado',
+  };
+  const tRows = Object.entries(stages).sort((a,b) => b[1]-a[1]).map(([k,n]) => {
+    const p = total > 0 ? (n / total * 100).toFixed(1) : '0.0';
+    return `<tr><td>${stageLabels[k] || k}</td><td>${n}</td><td>${p}%</td></tr>`;
+  }).join('');
+  $('statsTableEl').innerHTML = `
+    <thead><tr><th>Estado</th><th>Conversaciones</th><th>Porcentaje</th></tr></thead>
+    <tbody>${tRows}</tbody>
+    <tfoot><tr><td>Total</td><td>${total}</td><td>100%</td></tr></tfoot>`;
+
+  $('statsResumenSection').style.display = 'block';
+}
+
+function toggleStatsResumen() {
+  const body = $('statsResumenBody');
+  const btn  = $('statsResumenToggleBtn');
+  STATS.resumenOpen = !STATS.resumenOpen;
+  body.style.display = STATS.resumenOpen ? 'block' : 'none';
+  btn.textContent = STATS.resumenOpen ? 'Ocultar' : 'Mostrar';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && $('statsOverlay').classList.contains('open')) closeStatsView();
+  });
+});
 
 document.addEventListener('DOMContentLoaded', () => {
   connectServer();

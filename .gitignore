@@ -1,0 +1,24 @@
+# Secrets and credentials
+.jwt-secret
+auth.json
+
+# VS Code
+.vscode/
+
+# Windows Zone.Identifier files
+*.Zone.Identifier
+*:Zone.Identifier
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Node (if ever added)
+node_modules/
+dist/
+.env
+.env.*
