@@ -2728,27 +2728,39 @@ async function loadStats() {
 
 function renderStats(convs) {
   const total = convs.length;
-
-  const terminadas     = convs.filter(c => c.isClosed === true);
-  const enCurso        = convs.filter(c => !c.isClosed);
-  const enConversacion = enCurso.filter(c => c.lastUserMessageAt > 0);
-  const enEspera       = enCurso.filter(c => !(c.lastUserMessageAt > 0));
-
-  const contactadas = terminadas.filter(c => c.lastUserMessageAt > 0);
-  const noContestan = terminadas.filter(c => !(c.lastUserMessageAt > 0));
-
-  const pct = (n, d) => d > 0 ? (n / d * 100).toFixed(1) + '%' : '—';
+  const pct   = (n, d) => d > 0 ? (n / d * 100).toFixed(2).replace('.', ',') + '%' : '—';
 
   $('statsSubtitle').textContent = `Actualizado ${new Date().toLocaleString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' })}`;
-  $('statsConvCount').textContent = `${total} conversaciones`;
+  $('statsConvCount').textContent = `${total} siniestros`;
 
+  // ── Estado del proceso (basado en campo "contacto") ───────────────────────
+  const estOk          = convs.filter(c => (c.contacto||'').toLowerCase() === 'sí' || (c.contacto||'').toLowerCase() === 'si');
+  const estError       = convs.filter(c => (c.contacto||'').toLowerCase() === 'error');
+  const estNoResponde  = convs.filter(c => (c.contacto||'').toLowerCase() === 'no encontrado');
+  const estEnCurso     = convs.filter(c => { const ct=(c.contacto||'').toLowerCase(); return ct==='en curso'||ct==='req. rev.'; });
+
+  // ── Tipo de visita (basado en campo "digital") ────────────────────────────
+  const digSi          = convs.filter(c => (c.digital||'').toLowerCase() === 'sí' || (c.digital||'').toLowerCase() === 'si');
+  const digNo          = convs.filter(c => (c.digital||'').toLowerCase() === 'no');
+  const digNoResp      = convs.filter(c => { const d=(c.digital||'').trim(); return d===''||d.toLowerCase()==='no responde'; });
+
+  // ── Métricas derivadas ────────────────────────────────────────────────────
+  // Digital SI excluyendo no-responders (denominador = OK + ERROR)
+  const denominadorConContacto = estOk.length + estError.length;
+  // Digital SI excluyendo no-responders y errores (denominador = solo OK)
+  const pctDigSiSoloOk = pct(digSi.length, estOk.length);
+  const pctDigSiConContacto = pct(digSi.length, denominadorConContacto);
+
+  // ── Tarjetas ──────────────────────────────────────────────────────────────
   const cards = [
-    { lbl: 'En curso',        val: String(enCurso.length),    sub: `${enConversacion.length} en conversación + ${enEspera.length} en espera`, cls: 'c-blue'    },
-    { lbl: 'En conversación', val: String(enConversacion.length), sub: 'Han respondido al menos una vez',                                     cls: 'c-green'   },
-    { lbl: 'En espera',       val: String(enEspera.length),    sub: 'Sin respuesta del asegurado todavía',                                    cls: 'c-amber'   },
-    { lbl: 'Terminadas',      val: String(terminadas.length),  sub: 'Conversaciones cerradas',                                                cls: 'c-neutral' },
-    { lbl: 'Contactadas',     val: pct(contactadas.length, terminadas.length), sub: `${contactadas.length} de ${terminadas.length} terminadas`, cls: 'c-green' },
-    { lbl: 'No contestan',    val: pct(noContestan.length,  terminadas.length), sub: `${noContestan.length} de ${terminadas.length} terminadas`, cls: 'c-red'   },
+    { lbl: 'Total siniestros',        val: String(total),              sub: 'Procesados desde el inicio',                                   cls: 'c-neutral' },
+    { lbl: 'Estado OK',               val: String(estOk.length),       sub: `${pct(estOk.length, total)} — asegurado respondió correctamente`,  cls: 'c-green'   },
+    { lbl: 'No responde',             val: String(estNoResponde.length),sub: `${pct(estNoResponde.length, total)} — sin respuesta al mensaje inicial`, cls: 'c-amber'   },
+    { lbl: 'Sin consentimiento',      val: String(estError.length),     sub: `${pct(estError.length, total)} — no dio consentimiento de contacto`,   cls: 'c-red'     },
+    { lbl: 'En curso',                val: String(estEnCurso.length),   sub: `${pct(estEnCurso.length, total)} — conversaciones activas`,             cls: 'c-blue'    },
+    { lbl: 'Digital SÍ',              val: String(digSi.length),        sub: `${pct(digSi.length, total)} del total`,                                cls: 'c-green'   },
+    { lbl: 'Digital NO',              val: String(digNo.length),        sub: `${pct(digNo.length, total)} del total`,                                cls: 'c-amber'   },
+    { lbl: 'Digital no determinado',  val: String(digNoResp.length),    sub: `${pct(digNoResp.length, total)} (no responde o sin datos)`,            cls: 'c-neutral' },
   ];
 
   $('statsCards').innerHTML = cards.map(c => `
@@ -2759,27 +2771,23 @@ function renderStats(convs) {
     </div>`).join('');
   $('statsCards').style.display = 'grid';
 
-  // Resumen por estado table
-  const stages = {};
-  convs.forEach(c => {
-    let key = c.stage || 'consent';
-    if (c.isClosed) key = 'cerrado';
-    else if (c.botPaused) key = 'pausado';
-    stages[key] = (stages[key] || 0) + 1;
-  });
-  const stageLabels = {
-    cerrado:'Cerrado', pausado:'Pausado', consent:'Consentimiento',
-    identificacion:'Identificación', valoracion:'Valoración',
-    agendando:'Agendando', escalated:'Escalado',
-  };
-  const tRows = Object.entries(stages).sort((a,b) => b[1]-a[1]).map(([k,n]) => {
-    const p = total > 0 ? (n / total * 100).toFixed(1) : '0.0';
-    return `<tr><td>${stageLabels[k] || k}</td><td>${n}</td><td>${p}%</td></tr>`;
-  }).join('');
+  // ── Tabla de métricas derivadas ───────────────────────────────────────────
+  const metricas = [
+    ['Tasa de acierto',                          pct(estOk.length, total),                  `${estOk.length} estado OK de ${total} siniestros`],
+    ['Éxito conversión digital',                 pct(digSi.length, total),                  `${digSi.length} digital Sí de ${total} siniestros`],
+    ['Digital Sí (excl. no responden)',           pctDigSiSoloOk,                            `${digSi.length} de ${estOk.length} que respondieron OK`],
+    ['Digital Sí (excl. no responden ni consent)',pctDigSiConContacto,                       `${digSi.length} de ${denominadorConContacto} que tuvieron contacto`],
+    ['No responde mensaje inicial',               pct(estNoResponde.length, total),          `${estNoResponde.length} sin respuesta`],
+    ['Sin consentimiento (error)',                pct(estError.length, total),               `${estError.length} rechazos`],
+  ];
+
+  const mRows = metricas.map(([lbl, val, desc]) =>
+    `<tr><td>${lbl}</td><td>${val}</td><td style="color:var(--text3);font-size:11px;">${desc}</td></tr>`
+  ).join('');
+
   $('statsTableEl').innerHTML = `
-    <thead><tr><th>Estado</th><th>Conversaciones</th><th>Porcentaje</th></tr></thead>
-    <tbody>${tRows}</tbody>
-    <tfoot><tr><td>Total</td><td>${total}</td><td>100%</td></tr></tfoot>`;
+    <thead><tr><th>Métrica</th><th>Valor</th><th>Detalle</th></tr></thead>
+    <tbody>${mRows}</tbody>`;
 
   $('statsResumenSection').style.display = 'block';
 }
