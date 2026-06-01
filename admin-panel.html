@@ -91,6 +91,15 @@
     text-decoration: none;
   }
   .topbar-logo svg { flex-shrink: 0; }
+  @keyframes manolilla-wiggle {
+    0%   { transform: rotate(0deg) scale(1); }
+    20%  { transform: rotate(-6deg) scale(1.08); }
+    45%  { transform: rotate(5deg) scale(1.06); }
+    65%  { transform: rotate(-3deg) scale(1.03); }
+    80%  { transform: rotate(2deg) scale(1.01); }
+    100% { transform: rotate(0deg) scale(1); }
+  }
+  .topbar-logo.wiggle { animation: manolilla-wiggle 0.65s ease; }
   .topbar-sep { flex: 1; }
   .topbar-url {
     font-size: 12px;
@@ -156,6 +165,12 @@
   .fav-btn.is-fav { color: var(--amber); }
   .fav-btn.is-fav svg { fill: var(--amber); }
   .fav-btn-lg { padding: 8px; }
+  .clear-btn {
+    background: none; border: none; cursor: pointer; padding: 8px;
+    color: var(--text3); flex-shrink: 0; display: flex; align-items: center;
+    border-radius: 4px; transition: color 0.15s, background 0.15s;
+  }
+  .clear-btn:hover { background: rgba(255,80,80,0.10); color: #f87171; }
   /* Header de grupo Favoritos (no plegable) */
   .group-header.favorites { color: var(--amber); }
   .group-header.favorites .group-toggle { display: none; }
@@ -849,6 +864,108 @@
     transition: background 0.15s, color 0.15s; white-space: nowrap;
   }
   .topbar-icon-btn:hover { background: var(--bg3); color: var(--text); }
+  .topbar-icon-btn.send-initial-btn { color: var(--blue); }
+  .topbar-icon-btn.send-initial-btn:hover { background: var(--blue-dim); color: var(--blue); }
+
+  /* ── Modal envío inicial ── */
+  .si-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.55); z-index: 300;
+    align-items: center; justify-content: center;
+  }
+  .si-overlay.open { display: flex; }
+  .si-modal {
+    background: var(--bg2); border: 1px solid var(--border2);
+    border-radius: 10px; width: 560px; max-width: 96vw;
+    max-height: 88vh; display: flex; flex-direction: column;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .si-modal-header {
+    padding: 16px 20px 12px; border-bottom: 1px solid var(--border2);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .si-modal-title { font-size: 15px; font-weight: 600; color: var(--text); }
+  .si-modal-body { padding: 16px 20px; overflow-y: auto; flex: 1; }
+  .si-section-title {
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .06em; color: var(--text3); margin-bottom: 8px;
+  }
+  .si-normal-count {
+    font-size: 13px; color: var(--text2);
+    background: var(--bg3); border-radius: 6px;
+    padding: 8px 12px; margin-bottom: 16px;
+  }
+  .si-reqrev-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+  .si-reqrev-row {
+    background: var(--bg3); border: 1px solid #92400e44;
+    border-left: 3px solid var(--amber); border-radius: 6px;
+    padding: 12px 14px;
+  }
+  .si-reqrev-header { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+  .si-reqrev-nexp { font-size: 12px; font-weight: 600; color: var(--text); }
+  .si-reqrev-meta { font-size: 11px; color: var(--text3); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .si-reqrev-warning { font-size: 10px; color: var(--amber); }
+  .si-field-label { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing:.04em; margin-bottom: 3px; }
+  .si-obs-box {
+    font-size: 11px; color: var(--text2); background: var(--bg2);
+    border: 1px solid var(--border2); border-radius: 4px;
+    padding: 6px 8px; max-height: 60px; overflow-y: auto;
+    white-space: pre-wrap; word-break: break-word;
+    margin-bottom: 8px; resize: none; width: 100%; box-sizing: border-box;
+  }
+  .si-phones { display: flex; gap: 8px; margin-bottom: 8px; }
+  .si-phone-field { flex: 1; }
+  .si-phone-input {
+    width: 100%; font-size: 12px; padding: 5px 8px; border-radius: 4px;
+    border: 1px solid var(--border2); background: var(--bg2); color: var(--text2);
+    box-sizing: border-box;
+  }
+  .si-phone-input.editable { color: var(--text); border-color: var(--blue); background: var(--bg3); }
+  .si-send-phone-row { margin-bottom: 8px; }
+  .si-send-phone-input {
+    width: 100%; font-size: 12px; padding: 5px 8px; border-radius: 4px;
+    border: 1px solid var(--border2); background: var(--bg2); color: var(--text2);
+    box-sizing: border-box;
+  }
+  .si-send-phone-input.editable { color: var(--text); border-color: var(--blue); background: var(--bg3); cursor: text; }
+  .si-reqrev-actions { display: flex; gap: 6px; justify-content: flex-end; }
+  .si-btn-continue {
+    padding: 5px 12px; border-radius: 5px; border: 1px solid var(--blue);
+    background: var(--blue-dim); color: var(--blue);
+    font-size: 11px; cursor: pointer; transition: background 0.15s;
+  }
+  .si-btn-continue:hover { background: rgba(59,130,246,0.25); }
+  .si-btn-continue.selected { background: var(--blue); color: #fff; }
+  .si-btn-edit {
+    padding: 5px 12px; border-radius: 5px; border: 1px solid var(--border2);
+    background: none; color: var(--text2);
+    font-size: 11px; cursor: pointer; transition: background 0.15s;
+  }
+  .si-btn-edit:hover { background: var(--bg3); color: var(--text); }
+  .si-btn-edit.active { border-color: var(--amber); color: var(--amber); }
+  .si-btn-cancel {
+    padding: 5px 12px; border-radius: 5px; border: 1px solid var(--border2);
+    background: none; color: var(--text3);
+    font-size: 11px; cursor: pointer; transition: background 0.15s;
+  }
+  .si-btn-cancel:hover { background: rgba(255,80,80,0.08); color: #f87171; }
+  .si-btn-cancel.selected { background: rgba(255,80,80,0.12); color: #f87171; border-color: #f87171; }
+  .si-modal-footer {
+    padding: 12px 20px; border-top: 1px solid var(--border2);
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .si-footer-info { font-size: 12px; color: var(--text3); }
+  .si-footer-actions { display: flex; gap: 8px; }
+  .si-btn-run {
+    padding: 7px 18px; border-radius: 7px; border: none;
+    background: var(--blue); color: #fff; font-size: 13px;
+    font-weight: 600; cursor: pointer; transition: opacity 0.15s;
+  }
+  .si-btn-run:hover { opacity: 0.85; }
+  .si-btn-run:disabled { opacity: 0.35; cursor: not-allowed; }
+  .si-btn-dismiss { padding: 7px 14px; border-radius: 7px; border: 1px solid var(--border2); background: none; color: var(--text2); font-size: 13px; cursor: pointer; }
+  .si-empty { text-align: center; padding: 24px 0; color: var(--text3); font-size: 13px; }
+  .si-spinner { display: flex; align-items: center; justify-content: center; padding: 32px 0; color: var(--text3); font-size: 13px; gap: 8px; }
 
   /* ── Close success notice ── */
   @keyframes cfSuccessIn {
@@ -1009,16 +1126,20 @@
 
 <!-- ── Topbar ── -->
 <header class="topbar">
-  <a class="topbar-logo" href="#">
+  <a class="topbar-logo" href="#" id="manolillaLogo" onclick="(function(el){el.classList.remove('wiggle');void el.offsetWidth;el.classList.add('wiggle');})(document.getElementById('manolillaLogo'));return false">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#25d366" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
     </svg>
     Manolilla
   </a>
   <div class="topbar-sep"></div>
-  <button onclick="openStatsView()" class="topbar-icon-btn" title="Ver estadísticas">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-    <span style="font-size:12px;">Estadísticas</span>
+  <button onclick="openSendInitialModal()" class="topbar-icon-btn send-initial-btn" title="Envío inicial de mensajes">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    <span style="font-size:12px;">Envío</span>
+  </button>
+  <button onclick="toggleStatsView()" class="topbar-icon-btn" id="statsToggleBtn" title="Ver estadísticas">
+    <svg id="statsToggleIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    <span id="statsToggleLabel" style="font-size:12px;">Estadísticas</span>
   </button>
   <button onclick="openChangePasswordModal()" class="topbar-icon-btn" title="Cambiar contraseña">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
@@ -1088,6 +1209,9 @@
       <div class="chat-title" id="headerTitle"></div>
       <div class="chat-subtitle" id="headerSubtitle"></div>
     </div>
+    <button class="clear-btn" onclick="clearChatView(event)" title="Limpiar mensajes del chat">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg>
+    </button>
     <button id="headerFavBtn" class="fav-btn fav-btn-lg" onclick="toggleFavorite(STATE.activeConvId, event)" title="Marcar/Quitar de Favoritos">
       <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
     </button>
@@ -1135,10 +1259,6 @@
       <button class="stats-btn" onclick="loadStats()" id="statsRefreshBtn">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
         Actualizar
-      </button>
-      <button class="stats-btn" onclick="closeStatsView()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        Cerrar
       </button>
     </div>
   </div>
@@ -1413,6 +1533,19 @@ const STATE = {
   favorites: new Set(JSON.parse(localStorage.getItem('panel_favorites') || '[]')),
 };
 
+const clearedAt = {};  // waId → ISO timestamp del momento en que se limpió
+
+function clearChatView(evt) {
+  if (evt) { evt.stopPropagation(); evt.preventDefault(); }
+  const waId = STATE.activeConvId;
+  if (!waId) return;
+  clearedAt[waId] = new Date().toISOString();
+  const area = $('messagesArea');
+  area.dataset.msgSignature = '';  // fuerza re-render en el próximo poll
+  loadMessages(waId);
+}
+
+
 // ── Favoritos (solo frontend, persistido en localStorage; NO toca DB ni
 // máquina de estados del bot) ─────────────────────────────────────────────
 function saveFavorites() {
@@ -1535,6 +1668,17 @@ async function loadConversations() {
     }
 
     renderSidebar();
+
+    // Actualizar el panel de la conversación activa si su isClosed/botPaused cambió
+    if (STATE.activeConvId) {
+      const activeConv = STATE.conversations.find(c => c.waId === STATE.activeConvId);
+      if (activeConv) {
+        const isPaused = activeConv.botPaused === true || STATE.botPaused[activeConv.waId] === true;
+        const isClosed = activeConv.isClosed === true;
+        updateToggleUI(isPaused, isClosed);
+      }
+    }
+
   } catch (e) {
     toast(`Error cargando conversaciones: ${e.message}`, 'error');
   }
@@ -2149,12 +2293,17 @@ function renderMessages(messages, waId) {
   // conversación. Sin esto el polling de 5s destruye el DOM y resetea los
   // elementos <video>/<audio> en reproducción (el spinner aparece cada vez
   // que se recrean por preload="metadata").
+  if (clearedAt[waId]) {
+    messages = messages.filter(m => m.timestamp > clearedAt[waId]);
+  }
   const signature = `${waId}|${messages.length}|${messages[messages.length-1]?.timestamp || ''}|${messages[messages.length-1]?.text || ''}`;
   if (area.dataset.msgSignature === signature) return;
   area.dataset.msgSignature = signature;
 
   if (!messages.length) {
-    area.innerHTML = '<div class="empty-chat" id="emptyChat"><div class="empty-icon">💬</div><div>Sin mensajes en esta conversación</div></div>';
+    const emptyIcon = clearedAt[waId] ? '🧹' : '💬';
+    const emptyText = clearedAt[waId] ? 'Chat limpiado — esperando nuevos mensajes…' : 'Sin mensajes en esta conversación';
+    area.innerHTML = `<div class="empty-chat" id="emptyChat"><div class="empty-icon">${emptyIcon}</div><div>${emptyText}</div></div>`;
     return;
   }
 
@@ -2481,20 +2630,40 @@ function startPolling() {
 
 const STATS = {
   allConvs: [],
-  detailsMap: {},
-  messagesMap: {},
   filtered: [],
   resumenOpen: false,
 };
 
+function toggleStatsView() {
+  if ($('statsOverlay').classList.contains('open')) {
+    closeStatsView();
+  } else {
+    openStatsView();
+  }
+}
+
 function openStatsView() {
   $('statsOverlay').classList.add('open');
+  $('statsToggleLabel').textContent = 'Chat';
+  $('statsToggleIcon').innerHTML = '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>';
+  history.pushState({ stats: true }, '');
   if (STATS.allConvs.length === 0) loadStats();
 }
 
 function closeStatsView() {
   $('statsOverlay').classList.remove('open');
+  $('statsToggleLabel').textContent = 'Estadísticas';
+  $('statsToggleIcon').innerHTML = '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>';
+  if (history.state && history.state.stats) history.back();
 }
+
+window.addEventListener('popstate', () => {
+  if ($('statsOverlay').classList.contains('open')) {
+    $('statsOverlay').classList.remove('open');
+    $('statsToggleLabel').textContent = 'Estadísticas';
+    $('statsToggleIcon').innerHTML = '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>';
+  }
+});
 
 function clearStatsFilter() {
   $('statsDateFrom').value = '';
@@ -2522,7 +2691,13 @@ function applyStatsFilter() {
     });
   }
 
-  renderStats(STATS.filtered, STATS.detailsMap, STATS.messagesMap);
+  renderStats(STATS.filtered);
+}
+
+function tsToMs(ts) {
+  if (!ts) return null;
+  const n = typeof ts === 'number' ? ts : new Date(ts).getTime();
+  return isNaN(n) ? null : n;
 }
 
 async function loadStats() {
@@ -2536,32 +2711,10 @@ async function loadStats() {
 
   try {
     $('statsLoadingText').textContent = 'Cargando conversaciones…';
-    const r = await authFetch(`${STATE.serverUrl}/admin/conversations`);
+    const r = await authFetch(`${STATE.serverUrl}/admin/stats/conversations`);
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const data = await r.json();
     STATS.allConvs = data.conversations || [];
-
-    $('statsLoadingText').textContent = `Cargando detalles (${STATS.allConvs.length} conversaciones)…`;
-    STATS.detailsMap = {};
-    await Promise.allSettled(STATS.allConvs.map(async conv => {
-      try {
-        const dr = await authFetch(`${STATE.serverUrl}/admin/conversations/${conv.waId}/details`);
-        if (dr.ok) STATS.detailsMap[conv.waId] = await dr.json();
-      } catch {}
-    }));
-
-    $('statsLoadingText').textContent = 'Calculando métricas de tiempo…';
-    STATS.messagesMap = {};
-    const withResponse = STATS.allConvs.filter(c => c.lastUserMessageAt && c.lastUserMessageAt > 0);
-    await Promise.allSettled(withResponse.map(async conv => {
-      try {
-        const mr = await authFetch(`${STATE.serverUrl}/admin/conversations/${conv.waId}/messages`);
-        if (mr.ok) {
-          const md = await mr.json();
-          STATS.messagesMap[conv.waId] = md.messages || [];
-        }
-      } catch {}
-    }));
 
     applyStatsFilter();
   } catch (e) {
@@ -2573,97 +2726,29 @@ async function loadStats() {
   }
 }
 
-function tsToMs(ts) {
-  if (!ts) return null;
-  const n = typeof ts === 'number' ? ts : new Date(ts).getTime();
-  return isNaN(n) ? null : n;
-}
-
-function formatDuration(ms) {
-  if (!ms || ms <= 0) return '—';
-  const s = Math.floor(ms / 1000);
-  const d = Math.floor(s / 86400);
-  const h = Math.floor((s % 86400) / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  const sec = s % 60;
-  if (d > 0) return `${d}d ${h}h ${m}m`;
-  if (h > 0) return `${h} h ${m} min`;
-  if (m > 0) return `${m}m ${sec}s`;
-  return `${sec}s`;
-}
-
-function isDigitalSi(waId) {
-  const d = STATS.detailsMap[waId];
-  if (!d) return false;
-  const dig = String(d.digital || '').trim().toLowerCase();
-  return dig === 'sí' || dig === 'si' || dig.startsWith('si-');
-}
-
-function renderStats(convs, detailsMap, messagesMap) {
+function renderStats(convs) {
   const total = convs.length;
 
   const terminadas     = convs.filter(c => c.isClosed === true);
   const enCurso        = convs.filter(c => !c.isClosed);
-  const enConversacion = enCurso.filter(c => c.lastUserMessageAt && c.lastUserMessageAt > 0);
+  const enConversacion = enCurso.filter(c => c.lastUserMessageAt > 0);
   const enEspera       = enCurso.filter(c => !(c.lastUserMessageAt > 0));
 
-  const contactadas    = terminadas.filter(c => c.lastUserMessageAt && c.lastUserMessageAt > 0);
-  const noContestan    = terminadas.filter(c => !(c.lastUserMessageAt > 0));
+  const contactadas = terminadas.filter(c => c.lastUserMessageAt > 0);
+  const noContestan = terminadas.filter(c => !(c.lastUserMessageAt > 0));
 
-  const withDigitalAll         = terminadas.filter(c => isDigitalSi(c.waId));
-  const withDigitalContactadas = contactadas.filter(c => isDigitalSi(c.waId));
-
-  const telefonoIncorrecto = terminadas.filter(c => {
-    const d = detailsMap[c.waId];
-    return d && (d.anotacion || '').toLowerCase() === 'contacto-erroneo';
-  });
-
-  const rechazadas = terminadas.filter(c => {
-    const d = detailsMap[c.waId];
-    const an = d ? (d.anotacion || '').toLowerCase() : '';
-    return c.status === 'escalated' || c.stage === 'escalated'
-      || an === 'asegurado-no-responde' || an === 'asegurado-deja-responder';
-  });
-
-  let totalFirstResponse = 0, countFirstResponse = 0;
-  let totalToClose = 0, countToClose = 0;
-
-  convs.forEach(conv => {
-    const msgs = messagesMap[conv.waId];
-    if (!msgs || !msgs.length) return;
-    const botTs  = msgs.filter(m => m.direction === 'out').map(m => tsToMs(m.timestamp)).filter(Boolean);
-    const userTs = msgs.filter(m => m.direction === 'in').map(m => tsToMs(m.timestamp)).filter(Boolean);
-    if (botTs.length && userTs.length) {
-      const fb = Math.min(...botTs), fu = Math.min(...userTs);
-      if (fu > fb) { totalFirstResponse += fu - fb; countFirstResponse++; }
-    }
-    if (conv.isClosed && userTs.length) {
-      const fu = Math.min(...userTs);
-      const et = tsToMs(conv.lastMessageAt) || Math.max(...msgs.map(m => tsToMs(m.timestamp)).filter(Boolean));
-      if (et && et > fu) { totalToClose += et - fu; countToClose++; }
-    }
-  });
-
-  const avgFirstResponse = countFirstResponse > 0 ? formatDuration(Math.round(totalFirstResponse / countFirstResponse)) : '—';
-  const avgToClose       = countToClose > 0       ? formatDuration(Math.round(totalToClose / countToClose))             : '—';
   const pct = (n, d) => d > 0 ? (n / d * 100).toFixed(1) + '%' : '—';
 
   $('statsSubtitle').textContent = `Actualizado ${new Date().toLocaleString('es-ES', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' })}`;
   $('statsConvCount').textContent = `${total} conversaciones`;
 
   const cards = [
-    { lbl: 'En curso',                   val: String(enCurso.length),              sub: `${enConversacion.length} en conversación + ${enEspera.length} en espera`,                        cls: 'c-blue'    },
-    { lbl: 'En conversación',            val: String(enConversacion.length),        sub: 'Conversaciones activas',                                                                           cls: 'c-green'   },
-    { lbl: 'En espera',                  val: String(enEspera.length),              sub: 'Esperando respuesta',                                                                              cls: 'c-amber'   },
-    { lbl: 'Terminadas',                 val: String(terminadas.length),            sub: 'Excluye en conversación y en espera',                                                              cls: 'c-neutral' },
-    { lbl: 'Contactadas',                val: pct(contactadas.length,         terminadas.length),  sub: `${contactadas.length} de ${terminadas.length} terminadas`,                         cls: 'c-green'   },
-    { lbl: 'No contestan',               val: pct(noContestan.length,         terminadas.length),  sub: `${noContestan.length} de ${terminadas.length} terminadas`,                         cls: 'c-red'     },
-    { lbl: 'Videoperitación absoluto',   val: pct(withDigitalAll.length,      terminadas.length),  sub: `${withDigitalAll.length} de ${terminadas.length} terminadas`,                      cls: 'c-amber'   },
-    { lbl: 'Videoperitación relativo',   val: pct(withDigitalContactadas.length, contactadas.length), sub: `${withDigitalContactadas.length} de ${contactadas.length} contactadas`,         cls: 'c-amber'   },
-    { lbl: 'Teléfono incorrecto',        val: pct(telefonoIncorrecto.length,  terminadas.length),  sub: `${telefonoIncorrecto.length} de ${terminadas.length} terminadas`,                  cls: 'c-red'     },
-    { lbl: 'Rechazadas',                 val: pct(rechazadas.length,          terminadas.length),  sub: `${rechazadas.length} de ${terminadas.length} terminadas`,                          cls: 'c-red'     },
-    { lbl: 'Media primera respuesta',    val: avgFirstResponse,                                    sub: 'Resumen global',                                                                    cls: 'c-neutral' },
-    { lbl: 'Media de respuesta a final', val: avgToClose,                                          sub: 'Resumen global',                                                                    cls: 'c-neutral' },
+    { lbl: 'En curso',        val: String(enCurso.length),    sub: `${enConversacion.length} en conversación + ${enEspera.length} en espera`, cls: 'c-blue'    },
+    { lbl: 'En conversación', val: String(enConversacion.length), sub: 'Han respondido al menos una vez',                                     cls: 'c-green'   },
+    { lbl: 'En espera',       val: String(enEspera.length),    sub: 'Sin respuesta del asegurado todavía',                                    cls: 'c-amber'   },
+    { lbl: 'Terminadas',      val: String(terminadas.length),  sub: 'Conversaciones cerradas',                                                cls: 'c-neutral' },
+    { lbl: 'Contactadas',     val: pct(contactadas.length, terminadas.length), sub: `${contactadas.length} de ${terminadas.length} terminadas`, cls: 'c-green' },
+    { lbl: 'No contestan',    val: pct(noContestan.length,  terminadas.length), sub: `${noContestan.length} de ${terminadas.length} terminadas`, cls: 'c-red'   },
   ];
 
   $('statsCards').innerHTML = cards.map(c => `
@@ -2726,6 +2811,226 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (STATE.connected && !STATE.pollTimer) {
       startPolling();
     }
+  });
+});
+</script>
+
+<!-- ── Modal: envío inicial ─────────────────────────────────────────────── -->
+<div class="si-overlay" id="siOverlay" onclick="closeSendInitialModal(event)">
+  <div class="si-modal" onclick="event.stopPropagation()">
+    <div class="si-modal-header">
+      <span class="si-modal-title">Envío inicial de mensajes</span>
+      <button class="si-btn-dismiss" onclick="closeSendInitialModal()" style="padding:2px 8px;">✕</button>
+    </div>
+    <div class="si-modal-body" id="siModalBody">
+      <div class="si-spinner">Cargando pendientes…</div>
+    </div>
+    <div class="si-modal-footer">
+      <span class="si-footer-info" id="siFooterInfo"></span>
+      <div class="si-footer-actions">
+        <button class="si-btn-dismiss" onclick="closeSendInitialModal()">Cancelar</button>
+        <button class="si-btn-run" id="siBtnRun" onclick="runSendInitial()" disabled>Iniciar envío</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Envío inicial ─────────────────────────────────────────────────────────────
+
+const SI = {
+  normal:     [],
+  reqRev:     [],
+  decisions:  {},   // nexp → 'continue' | 'cancel'
+  editMode:   {},   // nexp → boolean
+  phoneEdits: {},   // nexp → string (teléfono editado)
+};
+
+function openSendInitialModal() {
+  SI.normal = []; SI.reqRev = []; SI.decisions = {};
+  SI.editMode = {}; SI.phoneEdits = {};
+  $('siOverlay').classList.add('open');
+  $('siBtnRun').disabled = true;
+  $('siBtnRun').textContent = 'Iniciar envío';
+  $('siFooterInfo').textContent = '';
+  $('siModalBody').innerHTML = '<div class="si-spinner">Cargando pendientes…</div>';
+  authFetch(`${STATE.serverUrl}/admin/send-initial/pending`)
+    .then(r => r.json())
+    .then(data => {
+      SI.normal  = data.normal  || [];
+      SI.reqRev  = data.reqRev  || [];
+      renderSiModal();
+    })
+    .catch(e => {
+      $('siModalBody').innerHTML = `<div class="si-empty">Error al cargar: ${e.message}</div>`;
+    });
+}
+
+function closeSendInitialModal(evt) {
+  if (evt && evt.target !== $('siOverlay')) return;
+  $('siOverlay').classList.remove('open');
+}
+
+function siSetDecision(nexp, decision) {
+  SI.decisions[nexp] = decision;
+  if (decision === 'cancel') { SI.editMode[nexp] = false; }
+  renderSiModal();
+}
+
+function siToggleEdit(nexp) {
+  SI.editMode[nexp] = !SI.editMode[nexp];
+  renderSiModal();
+  if (SI.editMode[nexp]) {
+    const el = document.getElementById('si-phone-edit-' + nexp);
+    if (el) { el.focus(); el.select(); }
+  }
+}
+
+function siPhoneChanged(nexp, val) {
+  SI.phoneEdits[nexp] = val;
+}
+
+function renderSiModal() {
+  // Flush any pending phone edits from live inputs before re-rendering
+  for (const row of SI.reqRev) {
+    const el = document.getElementById('si-phone-edit-' + row.nexp);
+    if (el) SI.phoneEdits[row.nexp] = el.value;
+  }
+
+  const body = $('siModalBody');
+  if (!SI.normal.length && !SI.reqRev.length) {
+    body.innerHTML = '<div class="si-empty">No hay expedientes pendientes de envío.</div>';
+    $('siBtnRun').disabled = true;
+    $('siFooterInfo').textContent = '';
+    return;
+  }
+
+  let html = '';
+
+  if (SI.normal.length) {
+    html += `<div class="si-section-title">Envíos estándar</div>
+      <div class="si-normal-count">✔ ${SI.normal.length} expediente${SI.normal.length !== 1 ? 's' : ''} listo${SI.normal.length !== 1 ? 's' : ''} para enviar</div>`;
+  }
+
+  if (SI.reqRev.length) {
+    html += `<div class="si-section-title">Requieren revisión (teléfono de observaciones)</div>
+      <div class="si-reqrev-list">`;
+
+    for (const row of SI.reqRev) {
+      const dec      = SI.decisions[row.nexp] || null;
+      const editing  = !!SI.editMode[row.nexp];
+      const curPhone = SI.phoneEdits[row.nexp] !== undefined ? SI.phoneEdits[row.nexp] : String(row.telefono || '');
+      const obsEsc   = (row.observaciones || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      const telPL    = row.telefonoPL || '';
+      const movilPL  = row.movilPL   || '';
+
+      html += `<div class="si-reqrev-row">
+        <div class="si-reqrev-header">
+          <span class="si-reqrev-nexp">Exp. ${row.nexp}</span>
+          <span class="si-reqrev-meta">${row.nombre || '—'} · ${row.aseguradora || '—'}</span>
+          <span class="si-reqrev-warning">⚠ Teléfono extraído de observaciones</span>
+        </div>`;
+
+      if (row.observaciones) {
+        html += `<div class="si-field-label">Observaciones</div>
+          <div class="si-obs-box">${obsEsc}</div>`;
+      }
+
+      html += `<div class="si-phones">
+          <div class="si-phone-field">
+            <div class="si-field-label">Teléfono PL</div>
+            <input class="si-phone-input" value="${telPL}" readonly tabindex="-1">
+          </div>
+          <div class="si-phone-field">
+            <div class="si-field-label">Móvil PL</div>
+            <input class="si-phone-input" value="${movilPL}" readonly tabindex="-1">
+          </div>
+        </div>
+        <div class="si-send-phone-row">
+          <div class="si-field-label">Teléfono a usar para el envío</div>
+          <input id="si-phone-edit-${row.nexp}" class="si-send-phone-input${editing ? ' editable' : ''}"
+            value="${curPhone}" ${editing ? '' : 'readonly'}
+            oninput="siPhoneChanged('${row.nexp}', this.value)">
+        </div>
+        <div class="si-reqrev-actions">
+          <button class="si-btn-cancel${dec === 'cancel' ? ' selected' : ''}"
+            onclick="siSetDecision('${row.nexp}', 'cancel')">Cancelar</button>
+          <button class="si-btn-edit${editing ? ' active' : ''}"
+            onclick="siToggleEdit('${row.nexp}')">${editing ? 'Confirmar edición' : 'Editar'}</button>
+          <button class="si-btn-continue${dec === 'continue' ? ' selected' : ''}"
+            onclick="siSetDecision('${row.nexp}', 'continue')">Continuar</button>
+        </div>
+      </div>`;
+    }
+    html += '</div>';
+  }
+
+  body.innerHTML = html;
+
+  const pendingDecisions = SI.reqRev.filter(r => !SI.decisions[r.nexp]);
+  const confirmed = SI.reqRev.filter(r => SI.decisions[r.nexp] === 'continue');
+  const cancelled  = SI.reqRev.filter(r => SI.decisions[r.nexp] === 'cancel');
+  const allDecided = pendingDecisions.length === 0;
+  const totalToSend = SI.normal.length + confirmed.length;
+
+  $('siBtnRun').disabled = !allDecided || totalToSend === 0;
+
+  if (allDecided && SI.reqRev.length > 0) {
+    $('siFooterInfo').textContent = `${confirmed.length} confirmados · ${cancelled.length} cancelados`;
+  } else if (SI.reqRev.length > 0) {
+    $('siFooterInfo').textContent = `${pendingDecisions.length} sin decisión`;
+  } else {
+    $('siFooterInfo').textContent = '';
+  }
+}
+
+async function runSendInitial() {
+  // Flush any in-progress phone edits
+  for (const row of SI.reqRev) {
+    const el = document.getElementById('si-phone-edit-' + row.nexp);
+    if (el) SI.phoneEdits[row.nexp] = el.value;
+  }
+
+  const confirmed = SI.reqRev
+    .filter(r => SI.decisions[r.nexp] === 'continue')
+    .map(r => r.nexp);
+
+  // Collect phone overrides (only for confirmed rows where phone was changed)
+  const phoneOverrides = {};
+  for (const nexp of confirmed) {
+    const row = SI.reqRev.find(r => r.nexp === nexp);
+    const orig = String(row?.telefono || '');
+    const edit = SI.phoneEdits[nexp];
+    if (edit !== undefined && edit.trim() !== '' && edit.trim() !== orig) {
+      phoneOverrides[nexp] = edit.trim();
+    }
+  }
+
+  const totalToSend = SI.normal.length + confirmed.length;
+  if (totalToSend === 0) return;
+
+  $('siBtnRun').disabled = true;
+  $('siBtnRun').textContent = 'Iniciando…';
+
+  try {
+    await authFetch(`${STATE.serverUrl}/admin/send-initial/run`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ confirmedReqRev: confirmed, phoneOverrides }),
+    });
+    $('siBtnRun').textContent = 'Iniciar envío';
+    toast(`Envío iniciado: ${totalToSend} expediente${totalToSend !== 1 ? 's' : ''}`, 'success');
+    $('siOverlay').classList.remove('open');
+  } catch (e) {
+    toast(`Error al iniciar envío: ${e.message}`, 'error');
+    $('siBtnRun').disabled = false;
+    $('siBtnRun').textContent = 'Iniciar envío';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && $('siOverlay').classList.contains('open')) closeSendInitialModal();
   });
 });
 </script>
