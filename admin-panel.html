@@ -1392,6 +1392,10 @@
         <hr class="cf-divider" />
 
         <div class="cf-field full">
+          <label for="cf-estimacion">Estimación económica</label>
+          <input type="text" id="cf-estimacion" name="estimacion" placeholder="ej. 3.000 €, 0 - 5.000 €" />
+        </div>
+        <div class="cf-field full">
           <label for="cf-danos">Daños</label>
           <textarea id="cf-danos" name="danos" placeholder="Describa los daños observados…"></textarea>
         </div>
@@ -1419,6 +1423,10 @@
             <option value="asegurado-no-responde">Asegurado no responde</option>
             <option value="asegurado-deja-responder">Asegurado deja de responder</option>
           </select>
+        </div>
+        <div class="cf-field full">
+          <label for="cf-anotaciones-libres">Anotaciones</label>
+          <input type="text" id="cf-anotaciones-libres" name="anotacionesLibres" placeholder="Texto adicional para las observaciones del encargo (ej: Contactar con Pedro: 682766149)…" maxlength="100">
         </div>
       </div>
 
@@ -2021,7 +2029,8 @@ async function openCloseForm(waId) {
       $('cf-relacion').value  = d.relacion || attRelacion || '';
       $('cf-digital').value   = digitalToSelectValue(d.digital, d.horario);
       $('cf-atPerito').value  = attNombre || '';
-      $('cf-danos').value     = d.danos || '';
+      $('cf-estimacion').value = '';
+      $('cf-danos').value      = d.danos || '';
       $('cf-causantes').value = d.causante || '';
       $('cf-afectados').value = d.perjudicados || '';
 
